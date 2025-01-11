@@ -99,7 +99,7 @@ vim.opt.inccommand = 'split'
 vim.g.sonokai_style = 'andromeda'
 vim.g.sonokai_better_performance = 1
 
-vim.g.gruvbox_material_foreground = 'mix'
+vim.g.gruvbox_material_foreground = 'original'
 
 local icons = {
   dap = {
@@ -895,7 +895,8 @@ require('lazy').setup({
       -- see the "default configuration" section below for full documentation on how to define
       -- your own keymap.
       enabled = function()
-        return true
+        return not vim.bo.buftype ~= "prompt"
+            and vim.b.completion ~= false
       end,
       keymap = {
         ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
@@ -916,14 +917,21 @@ require('lazy').setup({
       completion = {
         list = {
           max_items = 20,
-          selection = 'preselect',
+          selection = {
+            preselect = function(ctx)
+              return ctx.mode ~= 'cmdline' and not require('blink.cmp').snippet_active({ direction = 1 })
+            end,
+            auto_insert = true,
+          },
         },
         menu = {
           draw = {
             columns = { { 'label', gap = 2, 'kind' }, { 'label_description' } },
           },
           auto_show = function(ctx)
-            return ctx.mode ~= "cmdline" or not vim.tbl_contains({ '/', '?' }, vim.fn.getcmdtype())
+            if vim.bo.buftype ~= nil and vim.bo.buftype ~= '' then return false end
+            return ctx.mode ~= 'cmdline' or
+                not vim.tbl_contains({ '/', '?', ':' }, vim.fn.getcmdtype())
           end,
         },
       },
