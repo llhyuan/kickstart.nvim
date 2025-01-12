@@ -101,6 +101,7 @@ vim.g.sonokai_better_performance = 1
 
 vim.g.gruvbox_material_foreground = 'original'
 
+
 local icons = {
   dap = {
     Stopped = { ' ', 'DiagnosticWarn', 'DapStoppedLine' },
@@ -160,10 +161,10 @@ local icons = {
 }
 
 -- Disables automatic commenting on newline
--- vim.api.nvim_create_autocmd({ 'FileType' }, {
---   pattern = { '*' },
---   command = 'setlocal formatoptions-=c formatoptions-=r formatoptions-=o',
--- })
+vim.api.nvim_create_autocmd({ 'FileType' }, {
+  pattern = { '*' },
+  command = 'setlocal formatoptions-=c formatoptions-=r formatoptions-=o',
+})
 
 -- Configuring database connection
 --    vim.g.dbs = {
@@ -1845,6 +1846,18 @@ require('lazy').setup({
     --   },
     -- },
   },
+})
+
+-- override the diagnostic signs next the line number
+vim.diagnostic.config({
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = 'E',
+      [vim.diagnostic.severity.WARN] = 'W',
+      [vim.diagnostic.severity.HINT] = 'H',
+      [vim.diagnostic.severity.INFO] = 'I',
+    },
+  }
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
