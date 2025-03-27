@@ -11,17 +11,22 @@ return {
   },
   cmd = 'Neotree',
   keys = {
-    { '<leader>e', ':Neotree toggle current reveal_force_cwd right <CR>', desc = 'NeoTree reveal', silent = true },
-    { '<leader>b', ':Neotree toggle current buffers right <CR>',          desc = 'NeoTree reveal', silent = true },
+    { '<leader>e', ':Neotree toggle dir=./ right <CR>',          desc = 'NeoTree reveal', silent = true },
+    { '<leader>b', ':Neotree toggle current buffers right <CR>', desc = 'NeoTree reveal', silent = true },
   },
   opts = {
     sources = { 'filesystem', 'buffers', 'git_status', 'document_symbols' },
     open_files_do_not_replace_types = { 'terminal', 'Trouble', 'qf', 'Outline' },
     filesystem = {
       close_if_last_window = true,
-      bind_to_cwd = false,
+      bind_to_cwd = true,
+      fallback_when_path_not_found = true,
       follow_current_file = {
         enabled = true,
+      },
+      cwd_target = {
+        sidebar = "tab", -- or "window"
+        current = "window",
       },
       use_libuv_file_watcher = true,
     },
