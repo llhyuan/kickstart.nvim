@@ -239,13 +239,8 @@ map('v', '∆', ":m '>+1<cr>gv=gv", { desc = 'Move down' })
 map('v', '˚', ":m '<-2<cr>gv=gv", { desc = 'Move up' })
 
 -- buffers
--- if Util.has 'bufferline.nvim' then
---   map('n', '{', '<cmd>BufferLineCyclePrev<cr>', { desc = 'Prev buffer' })
---   map('n', '}', '<cmd>BufferLineCycleNext<cr>', { desc = 'Next buffer' })
--- else
 map('n', '{', '<cmd>bprevious<cr>', { desc = 'Prev buffer' })
 map('n', '}', '<cmd>bnext<cr>', { desc = 'Next buffer' })
---end
 map('n', '<leader>nb', '<cmd>e #<cr>', { desc = 'Switch to Other Buffer' })
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
@@ -273,9 +268,9 @@ map('n', '+', '<cmd>tabnext<cr>', { desc = 'Next Tab' })
 map('n', '_', '<cmd>tabprevious<cr>', { desc = 'Previous Tab' })
 
 -- Diagnostics
-map('n', '<leader>d', vim.diagnostic.open_float, options)
-map('n', '[d', vim.diagnostic.goto_prev, options)
-map('n', ']d', vim.diagnostic.goto_next, options)
+-- map('n', '<leader>d', vim.diagnostic.open_float, options)
+-- map('n', '[d', vim.diagnostic.goto_prev, options)
+-- map('n', ']d', vim.diagnostic.goto_next, options)
 
 -- telescope
 -- local builtin = require 'telescope.builtin'
@@ -409,7 +404,7 @@ require('lazy').setup({
       -- Document existing key chains
       spec = {
         { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
-        { '<leader>d', group = '[D]ocument' },
+        --{ '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
@@ -787,6 +782,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'jsonlint'
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -1215,7 +1211,7 @@ require('lazy').setup({
     end,
   },
   { 'mhartington/oceanic-next', lazy = true },
-  { 'sainnhe/sonokai' },
+  { 'sainnhe/sonokai',          lazy = true },
   { 'EdenEast/nightfox.nvim',   lazy = true },
   {
     'xero/miasma.nvim',
@@ -1591,11 +1587,13 @@ require('lazy').setup({
         --"permissions",
         --"mtime",
       },
+      -- keymaps = {
+      --   ["<leader>o"] = { "actions.open_cwd", mode = "n", desc = 'Open current directroy' },
+      -- }
     },
     keys = {
-      { '<leader>d', 'actions.open_cwd', desc = 'Open current directroy' },
+      ["-"] = { "actions.open_cwd", mode = "n", desc = 'Open current directroy' },
     },
-
     -- Optional dependencies
     dependencies = { 'nvim-tree/nvim-web-devicons' },
   },
@@ -1797,7 +1795,72 @@ require('lazy').setup({
       },
     },
   },
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    opts = {
+      menu = {
+        width = vim.api.nvim_win_get_width(0) - 4,
+      },
+      settings = {
+        save_on_toggle = true,
+      },
+    },
+    keys = function()
+      -- local conf = require("telescope.config").values
+      -- local function toggle_telescope(harpoon_files)
+      --   local file_paths = {}
+      --   for _, item in ipairs(harpoon_files.items) do
+      --     table.insert(file_paths, item.value)
+      --   end
+      --
+      --   require("telescope.pickers").new({}, {
+      --     prompt_title = "Harpoon",
+      --     finder = require("telescope.finders").new_table({
+      --       results = file_paths,
+      --     }),
+      --     previewer = conf.file_previewer({}),
+      --     sorter = conf.generic_sorter({}),
+      --   }):find()
+      -- end
+      local keys = {
+        {
+          "<C-a>",
+          function()
+            require("harpoon"):list():add()
+          end,
+          desc = "Harpoon Add File",
+        },
+        -- {
+        --   "<leader>m",
+        --   function()
+        --     local harpoon_list = require("harpoon"):list()
+        --     toggle_telescope(harpoon_list)
+        --   end,
+        --   desc = "Harpoon Quick Menu",
+        -- },
+        {
+          "<leader>m",
+          function()
+            local harpoon = require("harpoon")
+            harpoon.ui:toggle_quick_menu(harpoon:list())
+          end,
+          desc = "Harpoon Quick Menu",
+        },
+      }
 
+      for i = 1, 5 do
+        table.insert(keys, {
+          "<leader>" .. i,
+          function()
+            require("harpoon"):list():select(i)
+          end,
+          desc = "Harpoon to File " .. i,
+        })
+      end
+      return keys
+    end,
+  },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -1806,7 +1869,6 @@ require('lazy').setup({
   --
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
