@@ -670,7 +670,7 @@ require('lazy').setup({
           end
 
           -- if lsp supports formatting, create auto command to format on file save
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_formatting) then
+          if client and client.name ~= 'vtsls' and client.supports_method(vim.lsp.protocol.Methods.textDocument_formatting) then
             vim.api.nvim_create_autocmd('BufWritePre', {
               buffer = event.buf,
               callback = function()
@@ -729,13 +729,6 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {
-        --   capabilities = {
-        --     lsp_format = false,
-        --     format_on_save = false,
-        --   },
-        -- },
-        --
 
         lua_ls = {
           -- cmd = { ... },
@@ -1825,7 +1818,7 @@ require('lazy').setup({
       -- end
       local keys = {
         {
-          "<C-a>",
+          "<leader>a",
           function()
             require("harpoon"):list():add()
           end,
