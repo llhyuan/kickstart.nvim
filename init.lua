@@ -101,7 +101,6 @@ vim.g.sonokai_better_performance = 1
 
 vim.g.gruvbox_material_foreground = 'original'
 
-
 local icons = {
   dap = {
     Stopped = { ' ', 'DiagnosticWarn', 'DapStoppedLine' },
@@ -646,7 +645,7 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+          if client and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -670,7 +669,8 @@ require('lazy').setup({
           end
 
           -- if lsp supports formatting, create auto command to format on file save
-          if client and client.name ~= 'vtsls' and client.supports_method(vim.lsp.protocol.Methods.textDocument_formatting) then
+          -- vtsls has formatting issues, so it's excluded
+          if client and client.name ~= 'vtsls' and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_formatting) then
             vim.api.nvim_create_autocmd('BufWritePre', {
               buffer = event.buf,
               callback = function()
@@ -683,7 +683,7 @@ require('lazy').setup({
           -- code, if the language server you are using supports them
           --
           -- This may be unwanted, since they displace some of your code
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+          if client and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint) then
             map('<leader>uh', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
             end, 'Toggle Inlay [H]ints')
@@ -1912,6 +1912,9 @@ vim.diagnostic.config({
       [vim.diagnostic.severity.HINT] = 'H',
       [vim.diagnostic.severity.INFO] = 'I',
     },
+  },
+  virtual_lines = {
+    current_line = true
   }
 })
 
