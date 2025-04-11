@@ -775,7 +775,10 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        'jsonlint'
+        'eslint',
+        'jsonlint',
+        'lua_ls',
+        'rust_analyzer'
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -791,79 +794,86 @@ require('lazy').setup({
           end,
         },
         ensure_installed = { 'eslint', 'lua_ls', 'rust_analyzer' },
-        automatic_installation = false,
+        automatic_installation = true,
       }
     end,
   },
-  -- {
-  --   'stevearc/conform.nvim',
-  --   dependencies = { 'mason.nvim', 'MunifTanjim/prettier.nvim' },
-  --   event = { 'BufWritePre' },
-  --   lazy = true,
-  --   cmd = 'ConformInfo',
-  --   keys = {
-  --     {
-  --       '<leader>F',
-  --       function()
-  --         require('conform').format { timeout_ms = 3000 }
-  --       end,
-  --       mode = { 'n', 'v' },
-  --       desc = 'Format Injected Langs',
-  --     },
-  --   },
-  --   opts = function()
-  --     local opts = {
-  --       default_format_opts = {
-  --         timeout_ms = 3000,
-  --         async = false, -- not recommended to change
-  --         quiet = false, -- not recommended to change
-  --         lsp_format = 'fallback', -- not recommended to change
-  --       },
-  --       format_on_save = function(bufnr)
-  --         -- Disable "format_on_save lsp_fallback" for languages that don't
-  --         -- have a well standardized coding style. You can add additional
-  --         -- languages here or re-enable it for the disabled ones.
-  --         local disable_filetypes = { c = true, cpp = true, javascript = true, typescript = true, javascriptreact = true, typescriptreact = true }
-  --         local lsp_format_opt
-  --         if disable_filetypes[vim.bo[bufnr].filetype] then
-  --           lsp_format_opt = 'never'
-  --         else
-  --           lsp_format_opt = 'fallback'
-  --         end
-  --         return {
-  --           timeout_ms = 500,
-  --           lsp_format = lsp_format_opt,
-  --         }
-  --       end,
-  --       formatters_by_ft = {
-  --         lua = { 'stylua' },
-  --         fish = { 'fish_indent' },
-  --         sh = { 'shfmt' },
-  --       },
-  --       -- The options you set here will be merged with the builtin formatters.
-  --       -- You can also define any custom formatters here.
-  --       --@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
-  --       formatters = {
-  --         injected = { options = { ignore_errors = true } },
-  --         prettierd = {
-  --           prepend_args = { '--bracket-same-line', '--single-quote', '--trailing-comma none' },
-  --         },
-  --         -- # Example of using dprint only when a dprint.json file is present
-  --         -- dprint = {
-  --         --   condition = function(ctx)
-  --         --     return vim.fs.find({ "dprint.json" }, { path = ctx.filename, upward = true })[1]
-  --         --   end,
-  --         -- },
-  --         --
-  --         -- # Example of using shfmt with extra args
-  --         -- shfmt = {
-  --         --   prepend_args = { "-i", "2", "-ci" },
-  --         -- },
-  --       },
-  --     }
-  --     return opts
-  --   end,
-  -- },
+  {
+    'stevearc/conform.nvim',
+    dependencies = { 'mason.nvim', 'MunifTanjim/prettier.nvim' },
+    event = { 'BufWritePre' },
+    lazy = true,
+    cmd = 'ConformInfo',
+    keys = {
+      {
+        '<leader>F',
+        function()
+          require('conform').format { timeout_ms = 3000 }
+        end,
+        mode = { 'n', 'v' },
+        desc = 'Format Injected Langs',
+      },
+    },
+    opts = function()
+      local opts = {
+        default_format_opts = {
+          timeout_ms = 3000,
+          async = false,           -- not recommended to change
+          quiet = false,           -- not recommended to change
+          lsp_format = 'fallback', -- not recommended to change
+        },
+        format_on_save = function(bufnr)
+          -- Disable "format_on_save lsp_fallback" for languages that don't
+          -- have a well standardized coding style. You can add additional
+          -- languages here or re-enable it for the disabled ones.
+          local disable_filetypes = { c = true, cpp = true }
+          local lsp_format_opt
+          if disable_filetypes[vim.bo[bufnr].filetype] then
+            lsp_format_opt = 'never'
+          else
+            lsp_format_opt = 'fallback'
+          end
+          return {
+            timeout_ms = 500,
+            lsp_format = lsp_format_opt,
+          }
+        end,
+        formatters_by_ft = {
+          lua = { 'stylua' },
+          fish = { 'fish_indent' },
+          sh = { 'shfmt' },
+          javascript = { "prettierd", "prettier", stop_after_first = true },
+          javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+          typescript = { "prettierd", "prettier", stop_after_first = true },
+          typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+          html = { "prettierd", "prettier", stop_after_first = true },
+          css = { "prettierd", "prettier", stop_after_first = true },
+          json = { "prettierd", "prettier", stop_after_first = true }
+        },
+        -- The options you set here will be merged with the builtin formatters.
+        -- You can also define any custom formatters here.
+        --@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
+        formatters = {
+          injected = { options = { ignore_errors = true } },
+          prettierd = {
+            prepend_args = { '--bracket-same-line', '--single-quote', '--trailing-comma none' },
+          },
+          -- # Example of using dprint only when a dprint.json file is present
+          -- dprint = {
+          --   condition = function(ctx)
+          --     return vim.fs.find({ "dprint.json" }, { path = ctx.filename, upward = true })[1]
+          --   end,
+          -- },
+          --
+          -- # Example of using shfmt with extra args
+          -- shfmt = {
+          --   prepend_args = { "-i", "2", "-ci" },
+          -- },
+        },
+      }
+      return opts
+    end,
+  },
   {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
@@ -1913,7 +1923,7 @@ vim.diagnostic.config({
       [vim.diagnostic.severity.INFO] = 'I',
     },
   },
-  virtual_lines = {
+  virtual_text = {
     current_line = true
   }
 })
