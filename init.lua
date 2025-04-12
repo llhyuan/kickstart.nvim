@@ -493,8 +493,8 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('v', '<leader>fs', function()
-        local lines = vim.fn.getregion(vim.fn.getpos ".", vim.fn.getpos "v", { mode = vim.fn.mode() })
-        builtin.live_grep({ default_text = table.concat(lines) })
+        local lines = vim.fn.getregion(vim.fn.getpos '.', vim.fn.getpos 'v', { mode = vim.fn.mode() })
+        builtin.live_grep { default_text = table.concat(lines) }
       end, { desc = '[S]earch [S]elected' })
       vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -778,7 +778,7 @@ require('lazy').setup({
         'eslint',
         'jsonlint',
         'lua_ls',
-        'rust_analyzer'
+        'rust_analyzer',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -842,13 +842,13 @@ require('lazy').setup({
           lua = { 'stylua' },
           fish = { 'fish_indent' },
           sh = { 'shfmt' },
-          javascript = { "prettierd", "prettier", stop_after_first = true },
-          javascriptreact = { "prettierd", "prettier", stop_after_first = true },
-          typescript = { "prettierd", "prettier", stop_after_first = true },
-          typescriptreact = { "prettierd", "prettier", stop_after_first = true },
-          html = { "prettierd", "prettier", stop_after_first = true },
-          css = { "prettierd", "prettier", stop_after_first = true },
-          json = { "prettierd", "prettier", stop_after_first = true }
+          javascript = { 'prettierd', 'prettier', stop_after_first = true },
+          javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+          typescript = { 'prettierd', 'prettier', stop_after_first = true },
+          typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+          html = { 'prettierd', 'prettier', stop_after_first = true },
+          css = { 'prettierd', 'prettier', stop_after_first = true },
+          json = { 'prettierd', 'prettier', stop_after_first = true },
         },
         -- The options you set here will be merged with the builtin formatters.
         -- You can also define any custom formatters here.
@@ -895,8 +895,7 @@ require('lazy').setup({
       -- see the "default configuration" section below for full documentation on how to define
       -- your own keymap.
       enabled = function()
-        return not vim.bo.buftype ~= "prompt"
-            and vim.b.completion ~= false
+        return not vim.bo.buftype ~= 'prompt' and vim.b.completion ~= false
       end,
       keymap = {
         ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
@@ -919,7 +918,7 @@ require('lazy').setup({
           max_items = 20,
           selection = {
             preselect = function(ctx)
-              return ctx.mode ~= 'cmdline' and not require('blink.cmp').snippet_active({ direction = 1 })
+              return ctx.mode ~= 'cmdline' and not require('blink.cmp').snippet_active { direction = 1 }
             end,
             auto_insert = true,
           },
@@ -929,9 +928,10 @@ require('lazy').setup({
             columns = { { 'label', gap = 2, 'kind' }, { 'label_description' } },
           },
           auto_show = function(ctx)
-            if vim.bo.buftype ~= nil and vim.bo.buftype ~= '' then return false end
-            return ctx.mode ~= 'cmdline' or
-                not vim.tbl_contains({ '/', '?', ':' }, vim.fn.getcmdtype())
+            if vim.bo.buftype ~= nil and vim.bo.buftype ~= '' then
+              return false
+            end
+            return ctx.mode ~= 'cmdline' or not vim.tbl_contains({ '/', '?', ':' }, vim.fn.getcmdtype())
           end,
         },
       },
@@ -1595,7 +1595,7 @@ require('lazy').setup({
       -- }
     },
     keys = {
-      ["-"] = { "actions.open_cwd", mode = "n", desc = 'Open current directroy' },
+      ['-'] = { 'actions.open_cwd', mode = 'n', desc = 'Open current directroy' },
     },
     -- Optional dependencies
     dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -1799,8 +1799,8 @@ require('lazy').setup({
     },
   },
   {
-    "ThePrimeagen/harpoon",
-    branch = "harpoon2",
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
     opts = {
       menu = {
         width = vim.api.nvim_win_get_width(0) - 4,
@@ -1828,11 +1828,11 @@ require('lazy').setup({
       -- end
       local keys = {
         {
-          "<leader>a",
+          '<leader>a',
           function()
-            require("harpoon"):list():add()
+            require('harpoon'):list():add()
           end,
-          desc = "Harpoon Add File",
+          desc = 'Harpoon Add File',
         },
         -- {
         --   "<leader>m",
@@ -1843,22 +1843,22 @@ require('lazy').setup({
         --   desc = "Harpoon Quick Menu",
         -- },
         {
-          "<leader>m",
+          '<leader>m',
           function()
-            local harpoon = require("harpoon")
+            local harpoon = require 'harpoon'
             harpoon.ui:toggle_quick_menu(harpoon:list())
           end,
-          desc = "Harpoon Quick Menu",
+          desc = 'Harpoon Quick Menu',
         },
       }
 
       for i = 1, 5 do
         table.insert(keys, {
-          "<leader>" .. i,
+          '<leader>' .. i,
           function()
-            require("harpoon"):list():select(i)
+            require('harpoon'):list():select(i)
           end,
-          desc = "Harpoon to File " .. i,
+          desc = 'Harpoon to File ' .. i,
         })
       end
       return keys
@@ -1883,7 +1883,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
@@ -1914,7 +1914,7 @@ require('lazy').setup({
 })
 
 -- override the diagnostic signs next the line number
-vim.diagnostic.config({
+vim.diagnostic.config {
   signs = {
     text = {
       [vim.diagnostic.severity.ERROR] = 'E',
@@ -1924,9 +1924,9 @@ vim.diagnostic.config({
     },
   },
   virtual_text = {
-    current_line = true
-  }
-})
+    current_line = true,
+  },
+}
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
