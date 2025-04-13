@@ -102,8 +102,6 @@ vim.opt.inccommand = 'split'
 vim.g.sonokai_style = 'andromeda'
 vim.g.sonokai_better_performance = 1
 
-vim.g.gruvbox_material_foreground = 'original'
-
 local icons = {
   dap = {
     Stopped = { ' ', 'DiagnosticWarn', 'DapStoppedLine' },
@@ -1209,6 +1207,9 @@ require('lazy').setup({
     --   -- Load the colorscheme here.
     --   -- Like many other themes, this one has different styles, and you could load
     --   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+
+    --vim.g.gruvbox_material_foreground = 'original'
+
     --   vim.cmd.colorscheme 'gruvbox-material'
     --
     --   -- You can configure highlights by doing something like:
@@ -1223,6 +1224,15 @@ require('lazy').setup({
     -- end,
   },
   { 'mhartington/oceanic-next', lazy = true },
+  {
+    'rose-pine/neovim',
+    name = 'rose-pine',
+    lazy = false,
+    priority = 1000,
+    -- config = function()
+    --   vim.cmd 'colorscheme rose-pine'
+    -- end,
+  },
   { 'sainnhe/sonokai', lazy = false },
   {
     'sainnhe/everforest',
