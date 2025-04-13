@@ -1205,18 +1205,36 @@ require('lazy').setup({
   {
     'sainnhe/gruvbox-material',
     priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'gruvbox-material'
-
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
-    end,
+    -- init = function()
+    --   -- Load the colorscheme here.
+    --   -- Like many other themes, this one has different styles, and you could load
+    --   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+    --   vim.cmd.colorscheme 'gruvbox-material'
+    --
+    --   -- You can configure highlights by doing something like:
+    --   vim.cmd.hi 'Comment gui=none'
+    -- end,
+  },
+  {
+    'AlexvZyl/nordic.nvim',
+    lazy = true,
+    -- config = function()
+    --   require('nordic').load()
+    -- end,
   },
   { 'mhartington/oceanic-next', lazy = true },
-  { 'sainnhe/sonokai', lazy = true },
+  { 'sainnhe/sonokai', lazy = false },
+  {
+    'sainnhe/everforest',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      -- Optionally configure and load the colorscheme
+      -- directly inside the plugin declaration.
+      vim.g.everforest_enable_italic = true
+      vim.cmd.colorscheme 'everforest'
+    end,
+  },
   { 'EdenEast/nightfox.nvim', lazy = true },
   {
     'xero/miasma.nvim',
@@ -1224,7 +1242,8 @@ require('lazy').setup({
   },
   {
     'catppuccin/nvim',
-    priority = 1000,
+    -- priority = 1000,
+    lazy = true,
     name = 'catppuccin',
     opts = {
       integrations = {
