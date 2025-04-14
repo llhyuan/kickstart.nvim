@@ -465,6 +465,29 @@ require('lazy').setup({
       -- Telescope picker. This is really useful to discover what Telescope can
       -- do as well as how to actually do it!
 
+      -- Exclude binary files from preview
+      local previewers = require 'telescope.previewers'
+      local Job = require 'plenary.job'
+      local new_maker = function(filepath, bufnr, opts)
+        filepath = vim.fn.expand(filepath)
+        ---@diagnostic disable-next-line: missing-fields
+        Job:new({
+          command = 'file',
+          args = { '--mime-type', '-b', filepath },
+          on_exit = function(j)
+            local mime_type = vim.split(j:result()[1], '/')[1]
+            if mime_type == 'text' then
+              previewers.buffer_previewer_maker(filepath, bufnr, opts)
+            else
+              -- maybe we want to write something to the buffer here
+              vim.schedule(function()
+                vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { 'BINARY' })
+              end)
+            end
+          end,
+        }):sync()
+      end
+
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
       require('telescope').setup {
@@ -476,6 +499,12 @@ require('lazy').setup({
         --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
         --   },
         -- },
+        defaults = {
+          buffer_previewer_maker = new_maker,
+          preview = {
+            filesize_limit = 0.15, -- MB
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -857,6 +886,7 @@ require('lazy').setup({
         formatters = {
           injected = { options = { ignore_errors = true } },
           prettierd = {
+            require_cwd = true,
             prepend_args = { '--bracket-same-line', '--single-quote', '--trailing-comma none' },
           },
           -- # Example of using dprint only when a dprint.json file is present
