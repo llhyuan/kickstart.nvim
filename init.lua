@@ -1230,7 +1230,17 @@ require('lazy').setup({
     --   require('nordic').load()
     -- end,
   },
-  { 'mhartington/oceanic-next', lazy = true },
+  {
+    'rebelot/kanagawa.nvim',
+    lazy = false,
+    opts = {
+      theme = 'wave',  -- Load "wave" theme
+      background = {   -- map the value of 'background' option to a theme
+        dark = 'wave', -- try "dragon" !
+        light = 'lotus',
+      },
+    },
+  },
   {
     'rose-pine/neovim',
     name = 'rose-pine',
@@ -1239,7 +1249,7 @@ require('lazy').setup({
     --   vim.cmd 'colorscheme rose-pine'
     -- end,
   },
-  { 'sainnhe/sonokai',          lazy = true },
+  { 'sainnhe/sonokai',        lazy = true },
   {
     'sainnhe/everforest',
     lazy = true,
@@ -1251,7 +1261,7 @@ require('lazy').setup({
       -- vim.cmd.colorscheme 'everforest'
     end,
   },
-  { 'EdenEast/nightfox.nvim',         lazy = true },
+  { 'EdenEast/nightfox.nvim', lazy = true },
   {
     'xero/miasma.nvim',
     lazy = true,
@@ -1712,7 +1722,7 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim',       event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
