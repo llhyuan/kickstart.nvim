@@ -360,7 +360,7 @@ require('lazy').setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  { -- Useful plugin to show you pending keybinds.
+  {                     -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -403,7 +403,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
         --{ '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -443,7 +443,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -571,7 +571,7 @@ require('lazy').setup({
       },
     },
   },
-  { 'Bilal2453/luvit-meta', lazy = true },
+  { 'Bilal2453/luvit-meta',                        lazy = true },
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
@@ -583,7 +583,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -848,8 +848,8 @@ require('lazy').setup({
       local opts = {
         default_format_opts = {
           timeout_ms = 3000,
-          async = false, -- not recommended to change
-          quiet = false, -- not recommended to change
+          async = false,           -- not recommended to change
+          quiet = false,           -- not recommended to change
           lsp_format = 'fallback', -- not recommended to change
         },
         format_on_save = function(bufnr)
@@ -1192,7 +1192,8 @@ require('lazy').setup({
             command = 'node',
             -- 💀 Make sure to update this path to point to your installation
             args = {
-              require('mason-registry').get_package('js-debug-adapter'):get_install_path() .. '/js-debug/src/dapDebugServer.js',
+              require('mason-registry').get_package('js-debug-adapter'):get_install_path() ..
+              '/js-debug/src/dapDebugServer.js',
               '${port}',
             },
           },
@@ -1229,22 +1230,28 @@ require('lazy').setup({
     'folke/tokyonight.nvim',
     lazy = true,
   },
-  { 'ellisonleao/gruvbox.nvim', lazy = true },
+  {
+    'ellisonleao/gruvbox.nvim',
+    lazy = true,
+    -- init = function()
+    --   vim.cmd.colorscheme 'gruvbox'
+    -- end,
+  },
   {
     'sainnhe/gruvbox-material',
     priority = 1000, -- Make sure to load this before all the other start plugins.
-    -- init = function()
-    --   -- Load the colorscheme here.
-    --   -- Like many other themes, this one has different styles, and you could load
-    --   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+    init = function()
+      -- Load the colorscheme here.
+      -- Like many other themes, this one has different styles, and you could load
+      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
 
-    --vim.g.gruvbox_material_foreground = 'original'
+      vim.g.gruvbox_material_foreground = 'original'
 
-    --   vim.cmd.colorscheme 'gruvbox-material'
-    --
-    --   -- You can configure highlights by doing something like:
-    --   vim.cmd.hi 'Comment gui=none'
-    -- end,
+      vim.cmd.colorscheme 'gruvbox-material'
+
+      -- You can configure highlights by doing something like:
+      vim.cmd.hi 'Comment gui=none'
+    end,
   },
   {
     'AlexvZyl/nordic.nvim',
@@ -1253,26 +1260,35 @@ require('lazy').setup({
     --   require('nordic').load()
     -- end,
   },
-  { 'mhartington/oceanic-next', lazy = true },
+  {
+    'rebelot/kanagawa.nvim',
+    lazy = false,
+    opts = {
+      theme = 'wave',  -- Load "wave" theme
+      background = {   -- map the value of 'background' option to a theme
+        dark = 'wave', -- try "dragon" !
+        light = 'lotus',
+      },
+    },
+  },
   {
     'rose-pine/neovim',
     name = 'rose-pine',
     lazy = false,
-    priority = 1000,
     -- config = function()
     --   vim.cmd 'colorscheme rose-pine'
     -- end,
   },
-  { 'sainnhe/sonokai', lazy = false },
+  { 'sainnhe/sonokai',        lazy = true },
   {
     'sainnhe/everforest',
-    lazy = false,
-    priority = 1000,
+    lazy = true,
+    -- priority = 1000,
     config = function()
       -- Optionally configure and load the colorscheme
       -- directly inside the plugin declaration.
       vim.g.everforest_enable_italic = true
-      vim.cmd.colorscheme 'everforest'
+      -- vim.cmd.colorscheme 'everforest'
     end,
   },
   { 'EdenEast/nightfox.nvim', lazy = true },
@@ -1476,75 +1492,73 @@ require('lazy').setup({
       },
     },
   },
-  {
-    'echasnovski/mini.ai',
-    keys = {
-      { 'a', mode = { 'x', 'o' } },
-      { 'i', mode = { 'x', 'o' } },
-    },
-    dependencies = { 'nvim-treesitter-textobjects', config = true },
-    opts = function()
-      local ai = require 'mini.ai'
-      return {
-        n_lines = 500,
-        custom_textobjects = {
-          o = ai.gen_spec.treesitter({
-            a = { '@block.outer', '@conditional.outer', '@loop.outer' },
-            i = { '@block.inner', '@conditional.inner', '@loop.inner' },
-          }, {}),
-          f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }, {}),
-          c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }, {}),
-        },
-      }
-    end,
-    config = function(_, opts)
-      require('mini.ai').setup(opts)
-      -- register all text objects with which-key
-      if require('lazyvim.util').has 'which-key.nvim' then
-        ---@type table<string, string|table>
-        local i = {
-          [' '] = 'Whitespace',
-          ['"'] = 'Balanced "',
-          ["'"] = "Balanced '",
-          ['`'] = 'Balanced `',
-          ['('] = 'Balanced (',
-          [')'] = 'Balanced ) including white-space',
-          ['>'] = 'Balanced > including white-space',
-          ['<lt>'] = 'Balanced <',
-          [']'] = 'Balanced ] including white-space',
-          ['['] = 'Balanced [',
-          ['}'] = 'Balanced } including white-space',
-          ['{'] = 'Balanced {',
-          ['?'] = 'User Prompt',
-          _ = 'Underscore',
-          a = 'Argument',
-          b = 'Balanced ), ], }',
-          c = 'Class',
-          f = 'Function',
-          o = 'Block, conditional, loop',
-          q = 'Quote `, ", \'',
-          t = 'Tag',
-        }
-        local a = vim.deepcopy(i)
-        for k, v in pairs(a) do
-          a[k] = v:gsub(' including.*', '')
-        end
-
-        local ic = vim.deepcopy(i)
-        local ac = vim.deepcopy(a)
-        for key, name in pairs { n = 'Next', l = 'Last' } do
-          i[key] = vim.tbl_extend('force', { name = 'Inside ' .. name .. ' textobject' }, ic)
-          a[key] = vim.tbl_extend('force', { name = 'Around ' .. name .. ' textobject' }, ac)
-        end
-        require('which-key').add {
-          mode = { 'o', 'x' },
-          i = i,
-          a = a,
-        }
-      end
-    end,
-  },
   -- {
+  --   'echasnovski/mini.ai',
+  --   keys = {
+  --     { 'a', mode = { 'x', 'o' } },
+  --     { 'i', mode = { 'x', 'o' } },
+  --   },
+  --   dependencies = { 'nvim-treesitter-textobjects', config = true },
+  --   opts = function()
+  --     local ai = require 'mini.ai'
+  --     return {
+  --       n_lines = 500,
+  --       custom_textobjects = {
+  --         o = ai.gen_spec.treesitter({
+  --           a = { '@block.outer', '@conditional.outer', '@loop.outer' },
+  --           i = { '@block.inner', '@conditional.inner', '@loop.inner' },
+  --         }, {}),
+  --         f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }, {}),
+  --         c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }, {}),
+  --       },
+  --     }
+  --   end,
+  --   config = function(_, opts)
+  --     require('mini.ai').setup(opts)
+  --     -- register all text objects with which-key
+  --     if require('lazyvim.util').has 'which-key.nvim' then
+  --       ---@type table<string, string | table>
+  --       local i = {
+  --         [' '] = 'Whitespace',
+  --         ['"'] = 'Balanced "',
+  --         ["'"] = "Balanced '",
+  --         ['`'] = 'Balanced `',
+  --         ['('] = 'Balanced (',
+  --         [')'] = 'Balanced )', -- including white-space
+  --
+  --         ['>'] = 'Balanced >', -- including white-space
+  --         ['<lt>'] = 'Balanced <',
+  --         [']'] = 'Balanced ]', -- including white-space
+  --         ['['] = 'Balanced [',
+  --         ['}'] = 'Balanced }', -- including white-space
+  --         ['{'] = 'Balanced {',
+  --         ['?'] = 'User Prompt',
+  --         ['_'] = 'Underscore',
+  --         ['a'] = 'Argument',
+  --         ['b'] = 'Balanced ), ], }',
+  --         ['c'] = 'Class',
+  --         ['f'] = 'Function',
+  --         ['o'] = 'Block, conditional, loop',
+  --         ['q'] = 'Quote `, ", \'',
+  --         ['t'] = 'Tag',
+  --       }
+  --       local a = vim.deepcopy(i)
+  --
+  --       local ic = vim.deepcopy(i)
+  --       local ac = vim.deepcopy(a)
+  --       for key, name in pairs { n = 'Next', l = 'Last' } do
+  --         i[key] = vim.tbl_extend('force', { name = 'Inside ' .. name .. ' textobject' }, ic)
+  --         a[key] = vim.tbl_extend('force', { name = 'Around ' .. name .. ' textobject' }, ac)
+  --       end
+  --       require('which-key').add {
+  --         mode = { 'o', 'x' },
+  --         i = i,
+  --         a = a,
+  --       }
+  --     end
+  --   end,
+  -- },
+  -- -- {
   --   'echasnovski/mini.animate',
   --   event = 'VeryLazy',
   --   opts = function()
@@ -1682,12 +1696,12 @@ require('lazy').setup({
       },
     },
     keys = {
-      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Diagnostics (Trouble)' },
+      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>',              desc = 'Diagnostics (Trouble)' },
       { '<leader>xX', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Buffer Diagnostics (Trouble)' },
-      { '<leader>cs', '<cmd>Trouble symbols toggle<cr>', desc = 'Symbols (Trouble)' },
-      { '<leader>cS', '<cmd>Trouble lsp toggle<cr>', desc = 'LSP references/definitions/... (Trouble)' },
-      { '<leader>xL', '<cmd>Trouble loclist toggle<cr>', desc = 'Location List (Trouble)' },
-      { '<leader>xQ', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix List (Trouble)' },
+      { '<leader>cs', '<cmd>Trouble symbols toggle<cr>',                  desc = 'Symbols (Trouble)' },
+      { '<leader>cS', '<cmd>Trouble lsp toggle<cr>',                      desc = 'LSP references/definitions/... (Trouble)' },
+      { '<leader>xL', '<cmd>Trouble loclist toggle<cr>',                  desc = 'Location List (Trouble)' },
+      { '<leader>xQ', '<cmd>Trouble qflist toggle<cr>',                   desc = 'Quickfix List (Trouble)' },
       {
         '[q',
         function()
@@ -1738,7 +1752,7 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim',       event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -1749,7 +1763,7 @@ require('lazy').setup({
       --  - va)  - [V]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
       --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
+      -- require('mini.ai').setup { n_lines = 500 }
 
       -- Add/delete/replace surroundings (brackets, quotes, etc.)
       --
@@ -1804,11 +1818,111 @@ require('lazy').setup({
   },
   {
     'nvim-treesitter/nvim-treesitter-textobjects',
-    event = 'VeryLazy',
+    --event = 'VeryLazy',
     enabled = true,
+    opts = {
+      textobjects = {
+        select = {
+          enable = true,
+
+          -- Automatically jump forward to textobj, similar to targets.vim
+          lookahead = true,
+
+          keymaps = {
+            -- You can use the capture groups defined in textobjects.scm
+            ['af'] = '@function.outer',
+            ['if'] = '@function.inner',
+            ['ac'] = '@class.outer',
+            -- You can optionally set descriptions to the mappings (used in the desc parameter of
+            -- nvim_buf_set_keymap) which plugins like which-key display
+            ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+            -- You can also use captures from other query groups like `locals.scm`
+            ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
+          },
+          -- You can choose the select mode (default is charwise 'v')
+          --
+          -- Can also be a function which gets passed a table with the keys
+          -- * query_string: eg '@function.inner'
+          -- * method: eg 'v' or 'o'
+          -- and should return the mode ('v', 'V', or '<c-v>') or a table
+          -- mapping query_strings to modes.
+          selection_modes = {
+            ['@parameter.outer'] = 'v', -- charwise
+            ['@function.outer'] = 'V',  -- linewise
+            ['@class.outer'] = '<c-v>', -- blockwise
+          },
+          -- If you set this to `true` (default is `false`) then any textobject is
+          -- extended to include preceding or succeeding whitespace. Succeeding
+          -- whitespace has priority in order to act similarly to eg the built-in
+          -- `ap`.
+          --
+          -- Can also be a function which gets passed a table with the keys
+          -- * query_string: eg '@function.inner'
+          -- * selection_mode: eg 'v'
+          -- and should return true or false
+          include_surrounding_whitespace = true,
+        },
+      },
+      lsp_interop = {
+        enable = true,
+        border = 'none',
+        floating_preview_opts = {},
+        peek_definition_code = {
+          ['<leader>df'] = '@function.outer',
+          ['<leader>dc'] = '@class.outer',
+        },
+      },
+    },
     config = function()
       -- When in diff mode, we want to use the default
       -- vim text objects c & C instead of the treesitter ones.
+      local opts = {
+        textobjects = {
+          select = {
+            enable = true,
+
+            -- Automatically jump forward to textobj, similar to targets.vim
+            lookahead = true,
+
+            keymaps = {
+              -- You can use the capture groups defined in textobjects.scm
+              ['af'] = 'function outer',
+              ['if'] = 'function inner',
+              ['ac'] = 'class outer',
+              -- You can optionally set descriptions to the mappings (used in the desc parameter of
+              -- nvim_buf_set_keymap) which plugins like which-key display
+              ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+              -- You can also use captures from other query groups like `locals.scm`
+              ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
+            },
+            -- You can choose the select mode (default is charwise 'v')
+            --
+            -- Can also be a function which gets passed a table with the keys
+            -- * query_string: eg '@function.inner'
+            -- * method: eg 'v' or 'o'
+            -- and should return the mode ('v', 'V', or '<c-v>') or a table
+            -- mapping query_strings to modes.
+            selection_modes = {
+              ['@parameter.outer'] = 'v', -- charwise
+              ['@function.outer'] = 'V',  -- linewise
+              ['@class.outer'] = '<c-v>', -- blockwise
+            },
+            -- If you set this to `true` (default is `false`) then any textobject is
+            -- extended to include preceding or succeeding whitespace. Succeeding
+            -- whitespace has priority in order to act similarly to eg the built-in
+            -- `ap`.
+            --
+            -- Can also be a function which gets passed a table with the keys
+            -- * query_string: eg '@function.inner'
+            -- * selection_mode: eg 'v'
+            -- and should return true or false
+            include_surrounding_whitespace = true,
+          },
+        },
+      }
+
+      require('nvim-treesitter.configs').setup { textobjects = opts.textobjects }
+
       local move = require 'nvim-treesitter.textobjects.move' ---@type table<string,fun(...)>
       local configs = require 'nvim-treesitter.configs'
       for name, fn in pairs(move) do
