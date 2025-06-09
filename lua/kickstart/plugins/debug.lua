@@ -27,28 +27,28 @@ return {
   keys = {
     -- Basic debugging keymaps, feel free to change to your liking!
     {
-      '<F5>',
+      '<leader>ds',
       function()
         require('dap').continue()
       end,
       desc = 'Debug: Start/Continue',
     },
     {
-      '<F1>',
+      '<leader>di',
       function()
         require('dap').step_into()
       end,
       desc = 'Debug: Step Into',
     },
     {
-      '<F2>',
+      '<leader>do',
       function()
         require('dap').step_over()
       end,
       desc = 'Debug: Step Over',
     },
     {
-      '<F3>',
+      '<leader>dO',
       function()
         require('dap').step_out()
       end,
@@ -70,7 +70,7 @@ return {
     },
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
     {
-      '<F7>',
+      '<leader>dl',
       function()
         require('dapui').toggle()
       end,
@@ -95,8 +95,104 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
+        'js-debug-adapter',
       },
     }
+    if not dap.adapters['pwa-node'] then
+      require('dap').adapters['pwa-node'] = {
+        type = 'server',
+        host = 'localhost',
+        port = '${port}',
+        executable = {
+          command = 'js-debug-adapter',
+          -- 💀 Make sure to update this path to point to your installation
+          args = {
+            '${port}',
+          },
+        },
+      }
+    end
+    for _, language in ipairs { 'typescript', 'javascript' } do
+      if not dap.configurations[language] then
+        dap.configurations[language] = {
+          {
+            type = 'pwa-node',
+            request = 'launch',
+            name = 'Launch file',
+            program = '${file}',
+            cwd = '${workspaceFolder}',
+          },
+          {
+            type = 'pwa-node',
+            request = 'attach',
+            name = 'Attach',
+            address = 'localhost',
+            port = 8080,
+            processId = require('dap.utils').pick_process,
+            cwd = '${workspaceFolder}',
+            restart = true,
+          },
+        }
+      end
+    end
+
+    -- local js_based_languages = {
+    --   'typescript',
+    --   'javascript',
+    --   'typescriptreact',
+    --   'javascriptreact',
+    -- }
+    --
+    -- for _, language in ipairs(js_based_languages) do
+    --   dap.configurations[language] = {
+    --     -- Debug single nodejs files
+    --     {
+    --       type = 'pwa-node',
+    --       request = 'launch',
+    --       name = 'Launch file',
+    --       program = '${file}',
+    --       cwd = '${workspaceFolder}',
+    --       sourceMaps = true,
+    --     },
+    --     -- Debug nodejs processes (make sure to add --inspect when you run the process)
+    --
+    --     {
+    --       type = 'pwa-node',
+    --       request = 'attach',
+    --       name = 'Attach to Node app',
+    --       address = 'localhost',
+    --       port = 8080,
+    --       cwd = '${workspaceFolder}',
+    --       restart = true,
+    --       sourceMaps = true,
+    --     },
+    --     -- Debug web applications (client side)
+    --     {
+    --       type = 'pwa-chrome',
+    --       request = 'launch',
+    --       name = 'Launch & Debug Chrome',
+    --       url = function()
+    --         local co = coroutine.running()
+    --         return coroutine.create(function()
+    --           vim.ui.input({
+    --             prompt = 'Enter URL: ',
+    --             default = 'http://localhost:3000',
+    --           }, function(url)
+    --             if url == nil or url == '' then
+    --               return
+    --             else
+    --               coroutine.resume(co, url)
+    --             end
+    --           end)
+    --         end)
+    --       end,
+    --       webRoot = vim.fn.getcwd(),
+    --       protocol = 'inspector',
+    --       sourceMaps = true,
+    --       userDataDir = false,
+    --     },
+    --   }
+    -- end
 
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
@@ -109,28 +205,28 @@ return {
         icons = {
           pause = '⏸',
           play = '▶',
-          step_into = '⏎',
-          step_over = '⏭',
-          step_out = '⏮',
+          step_into = 'i',
+          step_over = 'o',
+          step_out = 'O',
           step_back = 'b',
           run_last = '▶▶',
           terminate = '⏹',
-          disconnect = '⏏',
+          disconnect = 'x',
         },
       },
     }
 
     -- Change breakpoint icons
-    -- vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
-    -- vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
-    -- local breakpoint_icons = vim.g.have_nerd_font
-    --     and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
-    --   or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
-    -- for type, icon in pairs(breakpoint_icons) do
-    --   local tp = 'Dap' .. type
-    --   local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
-    --   vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
-    -- end
+    vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
+    vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
+    local breakpoint_icons = vim.g.have_nerd_font
+        and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
+      or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
+    for type, icon in pairs(breakpoint_icons) do
+      local tp = 'Dap' .. type
+      local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
+      vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
+    end
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close

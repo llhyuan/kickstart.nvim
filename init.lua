@@ -360,7 +360,7 @@ require('lazy').setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  { -- Useful plugin to show you pending keybinds.
+  {                     -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -403,7 +403,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
         --{ '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -443,7 +443,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -571,7 +571,7 @@ require('lazy').setup({
       },
     },
   },
-  { 'Bilal2453/luvit-meta', lazy = true },
+  { 'Bilal2453/luvit-meta',                        lazy = true },
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
@@ -583,7 +583,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -872,8 +872,8 @@ require('lazy').setup({
       local opts = {
         default_format_opts = {
           timeout_ms = 3000,
-          async = false, -- not recommended to change
-          quiet = false, -- not recommended to change
+          async = false,           -- not recommended to change
+          quiet = false,           -- not recommended to change
           lsp_format = 'fallback', -- not recommended to change
         },
         format_on_save = function(bufnr)
@@ -1192,58 +1192,57 @@ require('lazy').setup({
     end,
   },
   { 'JoosepAlviste/nvim-ts-context-commentstring', lazy = true },
-  { -- Debug
-    'mfussenegger/nvim-dap',
-    lazy = true,
-    optional = true,
-    dependencies = {
-      {
-        'williamboman/mason.nvim',
-        opts = function(_, opts)
-          opts.ensure_installed = opts.ensure_installed or {}
-          table.insert(opts.ensure_installed, 'js-debug-adapter')
-        end,
-      },
-    },
-    opts = function()
-      local dap = require 'dap'
-      if not dap.adapters['pwa-node'] then
-        require('dap').adapters['pwa-node'] = {
-          type = 'server',
-          host = 'localhost',
-          port = '${port}',
-          executable = {
-            command = 'node',
-            -- 💀 Make sure to update this path to point to your installation
-            args = {
-              require('mason-registry').get_package('js-debug-adapter'):get_install_path() .. '/js-debug/src/dapDebugServer.js',
-              '${port}',
-            },
-          },
-        }
-      end
-      for _, language in ipairs { 'typescript', 'javascript' } do
-        if not dap.configurations[language] then
-          dap.configurations[language] = {
-            {
-              type = 'pwa-node',
-              request = 'launch',
-              name = 'Launch file',
-              program = '${file}',
-              cwd = '${workspaceFolder}',
-            },
-            {
-              type = 'pwa-node',
-              request = 'attach',
-              name = 'Attach',
-              processId = require('dap.utils').pick_process,
-              cwd = '${workspaceFolder}',
-            },
-          }
-        end
-      end
-    end,
-  },
+  -- { -- Debug
+  --   'mfussenegger/nvim-dap',
+  --   lazy = true,
+  --   optional = true,
+  --   dependencies = {
+  --     {
+  --       'williamboman/mason.nvim',
+  --       opts = function(_, opts)
+  --         opts.ensure_installed = opts.ensure_installed or {}
+  --         table.insert(opts.ensure_installed, 'js-debug-adapter')
+  --       end,
+  --     },
+  --   },
+  --   opts = function()
+  --     local dap = require 'dap'
+  --     if not dap.adapters['pwa-node'] then
+  --       require('dap').adapters['pwa-node'] = {
+  --         type = 'server',
+  --         host = 'localhost',
+  --         port = '${port}',
+  --         executable = {
+  --           command = 'js-debug-adapter',
+  --           -- 💀 Make sure to update this path to point to your installation
+  --           args = {
+  --             '${port}',
+  --           },
+  --         },
+  --       }
+  --     end
+  --     for _, language in ipairs { 'typescript', 'javascript' } do
+  --       if not dap.configurations[language] then
+  --         dap.configurations[language] = {
+  --           {
+  --             type = 'pwa-node',
+  --             request = 'launch',
+  --             name = 'Launch file',
+  --             program = '${file}',
+  --             cwd = '${workspaceFolder}',
+  --           },
+  --           {
+  --             type = 'pwa-node',
+  --             request = 'attach',
+  --             name = 'Attach',
+  --             processId = require('dap.utils').pick_process,
+  --             cwd = '${workspaceFolder}',
+  --           },
+  --         }
+  --       end
+  --     end
+  --   end,
+  -- },
   { -- Color Scheme
     -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
@@ -1287,8 +1286,8 @@ require('lazy').setup({
     'rebelot/kanagawa.nvim',
     lazy = false,
     opts = {
-      theme = 'wave', -- Load "wave" theme
-      background = { -- map the value of 'background' option to a theme
+      theme = 'wave',  -- Load "wave" theme
+      background = {   -- map the value of 'background' option to a theme
         dark = 'wave', -- try "dragon" !
         light = 'lotus',
       },
@@ -1302,7 +1301,7 @@ require('lazy').setup({
     --   vim.cmd 'colorscheme rose-pine'
     -- end,
   },
-  { 'sainnhe/sonokai', lazy = true },
+  { 'sainnhe/sonokai',        lazy = true },
   {
     'sainnhe/everforest',
     lazy = true,
@@ -1719,12 +1718,12 @@ require('lazy').setup({
       },
     },
     keys = {
-      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Diagnostics (Trouble)' },
+      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>',              desc = 'Diagnostics (Trouble)' },
       { '<leader>xX', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Buffer Diagnostics (Trouble)' },
-      { '<leader>cs', '<cmd>Trouble symbols toggle<cr>', desc = 'Symbols (Trouble)' },
-      { '<leader>cS', '<cmd>Trouble lsp toggle<cr>', desc = 'LSP references/definitions/... (Trouble)' },
-      { '<leader>xL', '<cmd>Trouble loclist toggle<cr>', desc = 'Location List (Trouble)' },
-      { '<leader>xQ', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix List (Trouble)' },
+      { '<leader>cs', '<cmd>Trouble symbols toggle<cr>',                  desc = 'Symbols (Trouble)' },
+      { '<leader>cS', '<cmd>Trouble lsp toggle<cr>',                      desc = 'LSP references/definitions/... (Trouble)' },
+      { '<leader>xL', '<cmd>Trouble loclist toggle<cr>',                  desc = 'Location List (Trouble)' },
+      { '<leader>xQ', '<cmd>Trouble qflist toggle<cr>',                   desc = 'Quickfix List (Trouble)' },
       {
         '[q',
         function()
@@ -1775,7 +1774,7 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim',       event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -1871,7 +1870,7 @@ require('lazy').setup({
           -- mapping query_strings to modes.
           selection_modes = {
             ['@parameter.outer'] = 'v', -- charwise
-            ['@function.outer'] = 'V', -- linewise
+            ['@function.outer'] = 'V',  -- linewise
             ['@class.outer'] = '<c-v>', -- blockwise
           },
           -- If you set this to `true` (default is `false`) then any textobject is
@@ -1927,7 +1926,7 @@ require('lazy').setup({
             -- mapping query_strings to modes.
             selection_modes = {
               ['@parameter.outer'] = 'v', -- charwise
-              ['@function.outer'] = 'V', -- linewise
+              ['@function.outer'] = 'V',  -- linewise
               ['@class.outer'] = '<c-v>', -- blockwise
             },
             -- If you set this to `true` (default is `false`) then any textobject is

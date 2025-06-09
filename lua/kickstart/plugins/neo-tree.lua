@@ -12,7 +12,7 @@ return {
   cmd = 'Neotree',
   keys = {
     { '<leader>e', ':Neotree toggle dir=./ right <CR>',          desc = 'NeoTree reveal', silent = true },
-    { '<leader>b', ':Neotree toggle current buffers right <CR>', desc = 'NeoTree reveal', silent = true },
+    { '<leader>E', ':Neotree toggle current buffers right <CR>', desc = 'NeoTree reveal', silent = true },
   },
   opts = {
     sources = { 'filesystem', 'buffers', 'git_status', 'document_symbols' },
@@ -25,8 +25,8 @@ return {
         enabled = true,
       },
       cwd_target = {
-        sidebar = "tab", -- or "window"
-        current = "window",
+        sidebar = 'tab', -- or "window"
+        current = 'window',
       },
       use_libuv_file_watcher = true,
     },
