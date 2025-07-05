@@ -360,7 +360,7 @@ require('lazy').setup({
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
-  {                     -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -403,7 +403,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         --{ '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -443,7 +443,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -571,7 +571,7 @@ require('lazy').setup({
       },
     },
   },
-  { 'Bilal2453/luvit-meta',                        lazy = true },
+  { 'Bilal2453/luvit-meta', lazy = true },
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
@@ -583,7 +583,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim',       opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -853,6 +853,36 @@ require('lazy').setup({
     end,
   },
   {
+    -- Main LSP Configuration
+    'https://gitlab.com/schrieveslaach/sonarlint.nvim',
+    config = function(_, opts)
+      require('sonarlint').setup {
+        server = {
+          cmd = {
+            'sonarlint-language-server',
+            -- Ensure that sonarlint-language-server uses stdio channel
+            '-stdio',
+            '-analyzers',
+            -- paths to the analyzers you need, using those for python and java in this example
+            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
+            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
+            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
+          },
+        },
+        filetypes = {
+          -- Tested and working
+          'dockerfile',
+          'python',
+          'cpp',
+          'javascript',
+          'javascriptreact',
+          'typescript',
+          'typescriptreact',
+        },
+      }
+    end,
+  },
+  {
     'stevearc/conform.nvim',
     dependencies = { 'mason.nvim', 'MunifTanjim/prettier.nvim' },
     event = { 'BufWritePre' },
@@ -872,8 +902,8 @@ require('lazy').setup({
       local opts = {
         default_format_opts = {
           timeout_ms = 3000,
-          async = false,           -- not recommended to change
-          quiet = false,           -- not recommended to change
+          async = false, -- not recommended to change
+          quiet = false, -- not recommended to change
           lsp_format = 'fallback', -- not recommended to change
         },
         format_on_save = function(bufnr)
@@ -1286,8 +1316,8 @@ require('lazy').setup({
     'rebelot/kanagawa.nvim',
     lazy = false,
     opts = {
-      theme = 'wave',  -- Load "wave" theme
-      background = {   -- map the value of 'background' option to a theme
+      theme = 'wave', -- Load "wave" theme
+      background = { -- map the value of 'background' option to a theme
         dark = 'wave', -- try "dragon" !
         light = 'lotus',
       },
@@ -1301,7 +1331,7 @@ require('lazy').setup({
     --   vim.cmd 'colorscheme rose-pine'
     -- end,
   },
-  { 'sainnhe/sonokai',        lazy = true },
+  { 'sainnhe/sonokai', lazy = true },
   {
     'sainnhe/everforest',
     lazy = true,
@@ -1718,12 +1748,12 @@ require('lazy').setup({
       },
     },
     keys = {
-      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>',              desc = 'Diagnostics (Trouble)' },
+      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Diagnostics (Trouble)' },
       { '<leader>xX', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Buffer Diagnostics (Trouble)' },
-      { '<leader>cs', '<cmd>Trouble symbols toggle<cr>',                  desc = 'Symbols (Trouble)' },
-      { '<leader>cS', '<cmd>Trouble lsp toggle<cr>',                      desc = 'LSP references/definitions/... (Trouble)' },
-      { '<leader>xL', '<cmd>Trouble loclist toggle<cr>',                  desc = 'Location List (Trouble)' },
-      { '<leader>xQ', '<cmd>Trouble qflist toggle<cr>',                   desc = 'Quickfix List (Trouble)' },
+      { '<leader>cs', '<cmd>Trouble symbols toggle<cr>', desc = 'Symbols (Trouble)' },
+      { '<leader>cS', '<cmd>Trouble lsp toggle<cr>', desc = 'LSP references/definitions/... (Trouble)' },
+      { '<leader>xL', '<cmd>Trouble loclist toggle<cr>', desc = 'Location List (Trouble)' },
+      { '<leader>xQ', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix List (Trouble)' },
       {
         '[q',
         function()
@@ -1774,7 +1804,7 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim',       event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -1870,7 +1900,7 @@ require('lazy').setup({
           -- mapping query_strings to modes.
           selection_modes = {
             ['@parameter.outer'] = 'v', -- charwise
-            ['@function.outer'] = 'V',  -- linewise
+            ['@function.outer'] = 'V', -- linewise
             ['@class.outer'] = '<c-v>', -- blockwise
           },
           -- If you set this to `true` (default is `false`) then any textobject is
@@ -1926,7 +1956,7 @@ require('lazy').setup({
             -- mapping query_strings to modes.
             selection_modes = {
               ['@parameter.outer'] = 'v', -- charwise
-              ['@function.outer'] = 'V',  -- linewise
+              ['@function.outer'] = 'V', -- linewise
               ['@class.outer'] = '<c-v>', -- blockwise
             },
             -- If you set this to `true` (default is `false`) then any textobject is
