@@ -573,6 +573,89 @@ require('lazy').setup({
   },
   { 'Bilal2453/luvit-meta', lazy = true },
   {
+    'stevearc/conform.nvim',
+    dependencies = { 'mason.nvim', 'MunifTanjim/prettier.nvim' },
+    event = { 'BufWritePre' },
+    lazy = true,
+    cmd = 'ConformInfo',
+    keys = {
+      {
+        '<leader><leader>f',
+        function()
+          require('conform').format { timeout_ms = 3000 }
+        end,
+        mode = { 'n', 'v' },
+        desc = 'Format Injected Langs',
+      },
+    },
+    opts = function()
+      local opts = {
+        default_format_opts = {
+          timeout_ms = 3000,
+          async = false, -- not recommended to change
+          quiet = false, -- not recommended to change
+          lsp_format = 'fallback', -- not recommended to change
+        },
+        -- format_on_save = function(bufnr)
+        --   -- Disable autoformat on certain filetypes
+        --   local ignore_filetypes = { 'c', 'cpp' }
+        --   if vim.tbl_contains(ignore_filetypes, vim.bo[bufnr].filetype) then
+        --     return
+        --   end
+        --   -- Disable with a global or buffer-local variable
+        --   if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+        --     return
+        --   end
+        --   -- Disable autoformat for files in a certain path
+        --   local bufname = vim.api.nvim_buf_get_name(bufnr)
+        --   if bufname:match '/node_modules/' then
+        --     return
+        --   end
+        --   -- ...additional logic...
+        --   return { timeout_ms = 500, lsp_format = 'fallback' }
+        -- end,
+        formatters_by_ft = {
+          lua = { 'stylua' },
+          fish = { 'fish_indent' },
+          sh = { 'shfmt' },
+          javascript = { 'eslint', stop_after_first = true },
+          javascriptreact = { 'eslint', stop_after_first = true },
+          typescript = { 'eslint', stop_after_first = true },
+          typescriptreact = { 'eslint', stop_after_first = true },
+          html = { 'prettierd', 'prettier', stop_after_first = true },
+          css = { 'prettierd', 'prettier', stop_after_first = true },
+          json = { 'prettierd', 'prettier', stop_after_first = true },
+        },
+        -- The options you set here will be merged with the builtin formatters.
+        -- You can also define any custom formatters here.
+        --@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
+        formatters = {
+          injected = { options = { ignore_errors = true } },
+          prettierd = {
+            require_cwd = true,
+            prepend_args = { '--bracket-same-line', '--single-quote', '--trailing-comma none' },
+          },
+          prettier = {
+            require_cwd = true,
+            prepend_args = { '--bracket-same-line', '--single-quote', '--trailing-comma none' },
+          },
+          -- # Example of using dprint only when a dprint.json file is present
+          -- dprint = {
+          --   condition = function(ctx)
+          --     return vim.fs.find({ "dprint.json" }, { path = ctx.filename, upward = true })[1]
+          --   end,
+          -- },
+          --
+          -- # Example of using shfmt with extra args
+          -- shfmt = {
+          --   prepend_args = { "-i", "2", "-ci" },
+          -- },
+        },
+      }
+      return opts
+    end,
+  },
+  {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -700,38 +783,44 @@ require('lazy').setup({
 
           -- if lsp supports formatting, create auto command to format on file save
           -- vtsls has formatting issues, so it's excluded
-          if client and client.name ~= 'vtsls' and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_formatting) then
-            vim.api.nvim_create_autocmd('BufWritePre', {
-              buffer = event.buf,
-              callback = function()
-                vim.lsp.buf.format { bufnr = event.buf, id = client.id }
-              end,
-            })
-          end
 
-          if client and client.name == 'vtsls' then
-            local function organize_imports()
-              local ft = vim.bo.filetype:gsub('react$', '')
-              if not vim.tbl_contains({ 'javascript', 'typescript' }, ft) then
-                return
-              end
-              local ok = vim.lsp.buf_request_sync(0, 'workspace/executeCommand', {
-                command = (ft .. '.organizeImports'),
-                arguments = { vim.api.nvim_buf_get_name(0) },
-              }, 3000)
-              if not ok then
-                print 'Command timeout or failed to complete.'
-              end
-            end
-
-            vim.api.nvim_create_autocmd('BufWritePre', {
-              pattern = { '*.css', '*.html', '*.js', '*.jsx', '*.json', '*.ts', '*.tsx' },
-              callback = function()
-                require('conform').format { async = false }
-                organize_imports()
-              end,
-            })
-          end
+          -- if
+          --     client
+          --     and client.name ~= 'vtsls'
+          --     and client.name ~= 'eslint'
+          --     and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_formatting)
+          -- then
+          --   vim.api.nvim_create_autocmd('BufWritePre', {
+          --     buffer = event.buf,
+          --     callback = function()
+          --       vim.lsp.buf.format { bufnr = event.buf, id = client.id }
+          --     end,
+          --   })
+          -- end
+          --
+          -- if client and client.name == 'eslint' and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_formatting) then
+          --   local function organize_imports()
+          --     local ft = vim.bo.filetype:gsub('react$', '')
+          --     if not vim.tbl_contains({ 'javascript', 'typescript' }, ft) then
+          --       return
+          --     end
+          --     local ok = vim.lsp.buf_request_sync(0, 'workspace/executeCommand', {
+          --       command = (ft .. '.organizeImports'),
+          --       arguments = { vim.api.nvim_buf_get_name(0) },
+          --     }, 3000)
+          --     if not ok then
+          --       print 'Command timeout or failed to complete.'
+          --     end
+          --   end
+          --
+          --   vim.api.nvim_create_autocmd('BufWritePre', {
+          --     pattern = { '*.css', '*.html', '*.js', '*.jsx', '*.json', '*.ts', '*.tsx' },
+          --     callback = function()
+          --       organize_imports()
+          --       vim.cmd { cmd = 'EslintFixAll' }
+          --     end,
+          --   })
+          -- end
 
           -- The following code creates a keymap to toggle inlay hints in your
           -- code, if the language server you are using supports them
@@ -844,7 +933,7 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            vim.lsp.config(server_name, server)
           end,
         },
         ensure_installed = { 'eslint', 'lua_ls', 'rust_analyzer' },
@@ -852,113 +941,36 @@ require('lazy').setup({
       }
     end,
   },
-  {
-    -- Main LSP Configuration
-    'https://gitlab.com/schrieveslaach/sonarlint.nvim',
-    config = function(_, opts)
-      require('sonarlint').setup {
-        server = {
-          cmd = {
-            'sonarlint-language-server',
-            -- Ensure that sonarlint-language-server uses stdio channel
-            '-stdio',
-            '-analyzers',
-            -- paths to the analyzers you need, using those for python and java in this example
-            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
-            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
-            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
-          },
-        },
-        filetypes = {
-          -- Tested and working
-          'dockerfile',
-          'python',
-          'cpp',
-          'javascript',
-          'javascriptreact',
-          'typescript',
-          'typescriptreact',
-        },
-      }
-    end,
-  },
-  {
-    'stevearc/conform.nvim',
-    dependencies = { 'mason.nvim', 'MunifTanjim/prettier.nvim' },
-    event = { 'BufWritePre' },
-    lazy = true,
-    cmd = 'ConformInfo',
-    keys = {
-      {
-        '<leader>F',
-        function()
-          require('conform').format { timeout_ms = 3000 }
-        end,
-        mode = { 'n', 'v' },
-        desc = 'Format Injected Langs',
-      },
-    },
-    opts = function()
-      local opts = {
-        default_format_opts = {
-          timeout_ms = 3000,
-          async = false, -- not recommended to change
-          quiet = false, -- not recommended to change
-          lsp_format = 'fallback', -- not recommended to change
-        },
-        format_on_save = function(bufnr)
-          -- Disable "format_on_save lsp_fallback" for languages that don't
-          -- have a well standardized coding style. You can add additional
-          -- languages here or re-enable it for the disabled ones.
-          local disable_filetypes = { c = true, cpp = true }
-          local lsp_format_opt
-          if disable_filetypes[vim.bo[bufnr].filetype] then
-            lsp_format_opt = 'never'
-          else
-            lsp_format_opt = 'fallback'
-          end
-          return {
-            timeout_ms = 500,
-            lsp_format = lsp_format_opt,
-          }
-        end,
-        formatters_by_ft = {
-          lua = { 'stylua' },
-          fish = { 'fish_indent' },
-          sh = { 'shfmt' },
-          javascript = { 'prettierd', 'prettier', stop_after_first = true },
-          javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-          typescript = { 'prettierd', 'prettier', stop_after_first = true },
-          typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-          html = { 'prettierd', 'prettier', stop_after_first = true },
-          css = { 'prettierd', 'prettier', stop_after_first = true },
-          json = { 'prettierd', 'prettier', stop_after_first = true },
-        },
-        -- The options you set here will be merged with the builtin formatters.
-        -- You can also define any custom formatters here.
-        --@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
-        formatters = {
-          injected = { options = { ignore_errors = true } },
-          prettierd = {
-            require_cwd = true,
-            prepend_args = { '--bracket-same-line', '--single-quote', '--trailing-comma none' },
-          },
-          -- # Example of using dprint only when a dprint.json file is present
-          -- dprint = {
-          --   condition = function(ctx)
-          --     return vim.fs.find({ "dprint.json" }, { path = ctx.filename, upward = true })[1]
-          --   end,
-          -- },
-          --
-          -- # Example of using shfmt with extra args
-          -- shfmt = {
-          --   prepend_args = { "-i", "2", "-ci" },
-          -- },
-        },
-      }
-      return opts
-    end,
-  },
+  -- {
+  --   -- Main LSP Configuration
+  --   'https://gitlab.com/schrieveslaach/sonarlint.nvim',
+  --   config = function(_, opts)
+  --     require('sonarlint').setup {
+  --       server = {
+  --         cmd = {
+  --           'sonarlint-language-server',
+  --           -- Ensure that sonarlint-language-server uses stdio channel
+  --           '-stdio',
+  --           '-analyzers',
+  --           -- paths to the analyzers you need, using those for python and java in this example
+  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
+  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
+  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
+  --         },
+  --       },
+  --       filetypes = {
+  --         -- Tested and working
+  --         'dockerfile',
+  --         'python',
+  --         'cpp',
+  --         'javascript',
+  --         'javascriptreact',
+  --         'typescript',
+  --         'typescriptreact',
+  --       },
+  --     }
+  --   end,
+  -- },
   {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
@@ -1804,8 +1816,12 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false },
+  },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1849,7 +1865,19 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -2154,6 +2182,55 @@ vim.diagnostic.config {
     current_line = true,
   },
 }
+
+-- auto commands that rely on plugins
+vim.api.nvim_create_autocmd('BufWritePre', {
+  desc = 'Format before save',
+  pattern = '*',
+  group = vim.api.nvim_create_augroup('FormatConfig', { clear = true }),
+  callback = function(ev)
+    local bufnr = ev.buf
+    -- Disable autoformat on certain filetypes
+    local ignore_filetypes = { 'c', 'cpp' }
+    if vim.tbl_contains(ignore_filetypes, vim.bo[bufnr].filetype) then
+      return
+    end
+    -- Disable with a global or buffer-local variable
+    if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+      return
+    end
+    -- Disable autoformat for files in a certain path
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    if bufname:match '/node_modules/' then
+      return
+    end
+
+    local conform_opts = { bufnr, lsp_format = 'fallback', timeout_ms = 2000 }
+    local client = vim.lsp.get_clients({ name = 'vtsls', bufnr })[1]
+
+    if not client then
+      require('conform').format(conform_opts)
+      return
+    end
+
+    local ft = vim.bo.filetype:gsub('react$', '')
+    if not vim.tbl_contains({ 'javascript', 'typescript' }, ft) then
+      return
+    end
+
+    local request_result = client:request_sync('workspace/executeCommand', {
+      command = ft .. '.organizeImports',
+      arguments = { vim.api.nvim_buf_get_name(bufnr) },
+    }, 3000)
+
+    if request_result and request_result.err then
+      vim.notify(request_result.err.message, vim.log.levels.ERROR)
+      return
+    end
+
+    require('conform').format(conform_opts)
+  end,
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
