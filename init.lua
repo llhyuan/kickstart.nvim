@@ -94,6 +94,7 @@ vim.opt.softtabstop = 2
 vim.opt.expandtab = true
 vim.opt.cindent = true
 vim.opt.smartindent = true
+vim.opt.expandtab = true
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -887,22 +888,21 @@ require('lazy').setup({
             },
           },
         },
-        eslint = {
-          on_attach = function(_, bufnr)
-            vim.api.nvim_create_autocmd('BufWritePre', {
-              buffer = bufnr,
-              command = 'EslintFixAll',
-            })
-          end,
-        },
+        -- eslint = {
+        --   on_attach = function(_, bufnr)
+        --     vim.api.nvim_create_autocmd('BufWritePre', {
+        --       buffer = bufnr,
+        --       command = 'EslintFixAll',
+        --     })
+        --   end,
+        -- },
       }
 
-      local lspconfig = require 'lspconfig'
       for server, config in pairs(servers) do
         -- passing config.capabilities to blink.cmp merges with the capabilities in your
         -- `opts[server].capabilities, if you've defined it
         config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
-        lspconfig[server].setup(config)
+        vim.lsp.config[server] = config
       end
 
       -- Ensure the servers and tools above are installed
