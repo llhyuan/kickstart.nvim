@@ -180,7 +180,7 @@ local options = { noremap = true, silent = true }
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
-map('n', '<Esc>', '<cmd>nohlsearch<CR>')
+map('n', '<leader>h', '<cmd>nohlsearch<CR>')
 
 -- use jk to switch from i to n mode
 map('i', 'jk', '<esc>', options)
@@ -1899,9 +1899,11 @@ require('lazy').setup({
   {
     'nvim-treesitter/nvim-treesitter-textobjects',
     --event = 'VeryLazy',
+    after = 'nvim-treesitter',
+    requires = 'nvim-treesitter/nvim-treesitter',
     enabled = true,
-    opts = {
-      textobjects = {
+    config = function()
+      local textobjects_config = {
         select = {
           enable = true,
 
@@ -1942,85 +1944,56 @@ require('lazy').setup({
           -- and should return true or false
           include_surrounding_whitespace = true,
         },
-      },
-      lsp_interop = {
-        enable = true,
-        border = 'none',
-        floating_preview_opts = {},
-        peek_definition_code = {
-          ['<leader>df'] = '@function.outer',
-          ['<leader>dc'] = '@class.outer',
+        swap = {
+          enable = true,
+          swap_next = {
+            ['<leader>a'] = '@parameter.inner',
+          },
+          swap_previous = {
+            ['<leader>A'] = '@parameter.inner',
+          },
         },
-      },
-    },
-    config = function()
-      -- When in diff mode, we want to use the default
-      -- vim text objects c & C instead of the treesitter ones.
-      local opts = {
-        textobjects = {
-          select = {
-            enable = true,
-
-            -- Automatically jump forward to textobj, similar to targets.vim
-            lookahead = true,
-
-            keymaps = {
-              -- You can use the capture groups defined in textobjects.scm
-              ['af'] = 'function outer',
-              ['if'] = 'function inner',
-              ['ac'] = 'class outer',
-              -- You can optionally set descriptions to the mappings (used in the desc parameter of
-              -- nvim_buf_set_keymap) which plugins like which-key display
-              ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
-              -- You can also use captures from other query groups like `locals.scm`
-              ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
-            },
-            -- You can choose the select mode (default is charwise 'v')
-            --
-            -- Can also be a function which gets passed a table with the keys
-            -- * query_string: eg '@function.inner'
-            -- * method: eg 'v' or 'o'
-            -- and should return the mode ('v', 'V', or '<c-v>') or a table
-            -- mapping query_strings to modes.
-            selection_modes = {
-              ['@parameter.outer'] = 'v', -- charwise
-              ['@function.outer'] = 'V', -- linewise
-              ['@class.outer'] = '<c-v>', -- blockwise
-            },
-            -- If you set this to `true` (default is `false`) then any textobject is
-            -- extended to include preceding or succeeding whitespace. Succeeding
-            -- whitespace has priority in order to act similarly to eg the built-in
-            -- `ap`.
-            --
-            -- Can also be a function which gets passed a table with the keys
-            -- * query_string: eg '@function.inner'
-            -- * selection_mode: eg 'v'
-            -- and should return true or false
-            include_surrounding_whitespace = true,
+        move = {
+          enable = true,
+          set_jumps = true, -- whether to set jumps in the jumplist
+          goto_next_start = {
+            ['<C-m>'] = '@function.outer',
+            ['<C-]>'] = { query = '@class.outer', desc = 'Next class start' },
+          },
+          goto_next_end = {
+            ['<C-M>'] = '@function.outer',
+          },
+          goto_previous_start = {
+            ['<C-n>'] = '@function.outer',
+            ['<C-[>'] = '@class.outer',
+          },
+          goto_previous_end = {
+            ['<C-N>'] = '@function.outer',
+          },
+          -- Below will go to either the start or the end, whichever is closer.
+          -- Use if you want more granular movements
+          -- Make it even more gradual by adding multiple queries and regex.
+          goto_next = {
+            [']d'] = '@conditional.outer',
+          },
+          goto_previous = {
+            ['[d'] = '@conditional.outer',
+          },
+        },
+        lsp_interop = {
+          enable = true,
+          border = 'none',
+          floating_preview_opts = {},
+          peek_definition_code = {
+            ['<leader>df'] = '@function.outer',
+            ['<leader>dc'] = '@class.outer',
           },
         },
       }
 
-      require('nvim-treesitter.configs').setup { textobjects = opts.textobjects }
-
-      local move = require 'nvim-treesitter.textobjects.move' ---@type table<string,fun(...)>
-      local configs = require 'nvim-treesitter.configs'
-      for name, fn in pairs(move) do
-        if name:find 'goto' == 1 then
-          move[name] = function(q, ...)
-            if vim.wo.diff then
-              local config = configs.get_module('textobjects.move')[name] ---@type table<string,string>
-              for key, query in pairs(config or {}) do
-                if q == query and key:find '[%]%[][cC]' then
-                  vim.cmd('normal! ' .. key)
-                  return
-                end
-              end
-            end
-            return fn(q, ...)
-          end
-        end
-      end
+      require('nvim-treesitter.configs').setup {
+        textobjects = textobjects_config,
+      }
     end,
   },
   {
