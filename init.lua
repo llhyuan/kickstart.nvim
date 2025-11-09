@@ -943,40 +943,40 @@ require('lazy').setup({
       }
     end,
   },
-  -- {
-  --   -- Main LSP Configuration
-  --   'https://gitlab.com/schrieveslaach/sonarlint.nvim',
-  --   config = function(_, opts)
-  --     require('sonarlint').setup {
-  --       server = {
-  --         cmd = {
-  --           'sonarlint-language-server',
-  --           -- Ensure that sonarlint-language-server uses stdio channel
-  --           '-stdio',
-  --           '-analyzers',
-  --           -- paths to the analyzers you need, using those for python and java in this example
-  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
-  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
-  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
-  --         },
-  --       },
-  --       filetypes = {
-  --         -- Tested and working
-  --         'dockerfile',
-  --         'python',
-  --         'cpp',
-  --         'javascript',
-  --         'javascriptreact',
-  --         'typescript',
-  --         'typescriptreact',
-  --       },
-  --     }
-  --   end,
-  -- },
+  {
+    -- Main LSP Configuration
+    'https://gitlab.com/schrieveslaach/sonarlint.nvim',
+    config = function(_, opts)
+      require('sonarlint').setup {
+        server = {
+          cmd = {
+            'sonarlint-language-server',
+            -- Ensure that sonarlint-language-server uses stdio channel
+            '-stdio',
+            '-analyzers',
+            -- paths to the analyzers you need, using those for python and java in this example
+            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
+            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
+            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
+          },
+        },
+        filetypes = {
+          -- Tested and working
+          'dockerfile',
+          'python',
+          'cpp',
+          'javascript',
+          'javascriptreact',
+          'typescript',
+          'typescriptreact',
+        },
+      }
+    end,
+  },
   {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
-    dependencies = { 'rafamadriz/friendly-snippets', { 'L3MON4D3/LuaSnip', version = 'v2.*' } },
+    dependencies = { 'rafamadriz/friendly-snippets', { 'L3MON4D3/LuaSnip', version = 'v2.*' }, 'giuxtaposition/blink-cmp-copilot' },
 
     -- use a release tag to download pre-built binaries
     version = 'v0.*',
@@ -1033,6 +1033,11 @@ require('lazy').setup({
             return ctx.mode ~= 'cmdline' or not vim.tbl_contains({ '/', '?', ':' }, vim.fn.getcmdtype())
           end,
         },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 500,
+          treesitter_highlighting = true,
+        },
       },
 
       appearance = {
@@ -1062,7 +1067,15 @@ require('lazy').setup({
       -- default list of enabled providers defined so that you can extend it
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'buffer' },
+        default = { 'lsp', 'path', 'snippets', 'buffer', 'copilot' },
+        providers = {
+          copilot = {
+            name = 'copilot',
+            module = 'blink-cmp-copilot',
+            score_offset = 100,
+            async = true,
+          },
+        },
         -- optionally disable cmdline completions
         -- cmdline = {},
       },
