@@ -12,6 +12,9 @@ vim.g.have_nerd_font = true
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- expand tab
+vim.opt.expandtab = true
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -943,40 +946,40 @@ require('lazy').setup({
       }
     end,
   },
-  {
-    -- Main LSP Configuration
-    'https://gitlab.com/schrieveslaach/sonarlint.nvim',
-    config = function(_, opts)
-      require('sonarlint').setup {
-        server = {
-          cmd = {
-            'sonarlint-language-server',
-            -- Ensure that sonarlint-language-server uses stdio channel
-            '-stdio',
-            '-analyzers',
-            -- paths to the analyzers you need, using those for python and java in this example
-            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
-            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
-            vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
-          },
-        },
-        filetypes = {
-          -- Tested and working
-          'dockerfile',
-          'python',
-          'cpp',
-          'javascript',
-          'javascriptreact',
-          'typescript',
-          'typescriptreact',
-        },
-      }
-    end,
-  },
+  -- {
+  --   -- Main LSP Configuration
+  --   'https://gitlab.com/schrieveslaach/sonarlint.nvim',
+  --   config = function(_, opts)
+  --     require('sonarlint').setup {
+  --       server = {
+  --         cmd = {
+  --           'sonarlint-language-server',
+  --           -- Ensure that sonarlint-language-server uses stdio channel
+  --           '-stdio',
+  --           '-analyzers',
+  --           -- paths to the analyzers you need, using those for python and java in this example
+  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
+  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
+  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
+  --         },
+  --       },
+  --       filetypes = {
+  --         -- Tested and working
+  --         'dockerfile',
+  --         'python',
+  --         'cpp',
+  --         'javascript',
+  --         'javascriptreact',
+  --         'typescript',
+  --         'typescriptreact',
+  --       },
+  --     }
+  --   end,
+  -- },
   {
     'saghen/blink.cmp',
     -- optional: provides snippets for the snippet source
-    dependencies = { 'rafamadriz/friendly-snippets', { 'L3MON4D3/LuaSnip', version = 'v2.*' }, 'giuxtaposition/blink-cmp-copilot' },
+    dependencies = { 'rafamadriz/friendly-snippets', { 'L3MON4D3/LuaSnip', version = 'v2.*' } },
 
     -- use a release tag to download pre-built binaries
     version = 'v0.*',
@@ -1067,15 +1070,7 @@ require('lazy').setup({
       -- default list of enabled providers defined so that you can extend it
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'buffer', 'copilot' },
-        providers = {
-          copilot = {
-            name = 'copilot',
-            module = 'blink-cmp-copilot',
-            score_offset = 100,
-            async = true,
-          },
-        },
+        default = { 'lsp', 'path', 'snippets', 'buffer' },
         -- optionally disable cmdline completions
         -- cmdline = {},
       },
@@ -1349,6 +1344,9 @@ require('lazy').setup({
         light = 'lotus',
       },
     },
+    -- init = function()
+    --   vim.cmd.colorscheme 'kanagawa-wave'
+    -- end,
   },
   {
     'rose-pine/neovim',
