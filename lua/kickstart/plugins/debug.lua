@@ -27,7 +27,7 @@ return {
   keys = {
     -- Basic debugging keymaps, feel free to change to your liking!
     {
-      '<leader>ds',
+      '<leader>dS',
       function()
         require('dap').continue()
       end,
@@ -122,77 +122,46 @@ return {
             program = '${file}',
             cwd = '${workspaceFolder}',
           },
+          -- Debug nodejs processes (make sure to add --inspect when you run the process)
           {
             type = 'pwa-node',
             request = 'attach',
-            name = 'Attach',
+            name = 'Attach to Node',
             address = 'localhost',
             port = 8080,
             processId = require('dap.utils').pick_process,
             cwd = '${workspaceFolder}',
             restart = true,
+            sourceMaps = true,
+          },
+          -- Debug web applications (client side)
+          {
+            type = 'pwa-chrome',
+            request = 'launch',
+            name = 'Launch & Debug Chrome',
+            url = function()
+              local co = coroutine.running()
+              return coroutine.create(function()
+                vim.ui.input({
+                  prompt = 'Enter URL: ',
+                  default = 'http://localhost:3000',
+                }, function(url)
+                  if url == nil or url == '' then
+                    return
+                  else
+                    coroutine.resume(co, url)
+                  end
+                end)
+              end)
+            end,
+            webRoot = vim.fn.getcwd(),
+            protocol = 'inspector',
+            sourceMaps = true,
+            userDataDir = false,
           },
         }
       end
     end
-
-    -- local js_based_languages = {
-    --   'typescript',
-    --   'javascript',
-    --   'typescriptreact',
-    --   'javascriptreact',
-    -- }
-    --
-    -- for _, language in ipairs(js_based_languages) do
-    --   dap.configurations[language] = {
-    --     -- Debug single nodejs files
-    --     {
-    --       type = 'pwa-node',
-    --       request = 'launch',
-    --       name = 'Launch file',
-    --       program = '${file}',
-    --       cwd = '${workspaceFolder}',
-    --       sourceMaps = true,
-    --     },
-    --     -- Debug nodejs processes (make sure to add --inspect when you run the process)
-    --
-    --     {
-    --       type = 'pwa-node',
-    --       request = 'attach',
-    --       name = 'Attach to Node app',
-    --       address = 'localhost',
-    --       port = 8080,
-    --       cwd = '${workspaceFolder}',
-    --       restart = true,
-    --       sourceMaps = true,
-    --     },
-    --     -- Debug web applications (client side)
-    --     {
-    --       type = 'pwa-chrome',
-    --       request = 'launch',
-    --       name = 'Launch & Debug Chrome',
-    --       url = function()
-    --         local co = coroutine.running()
-    --         return coroutine.create(function()
-    --           vim.ui.input({
-    --             prompt = 'Enter URL: ',
-    --             default = 'http://localhost:3000',
-    --           }, function(url)
-    --             if url == nil or url == '' then
-    --               return
-    --             else
-    --               coroutine.resume(co, url)
-    --             end
-    --           end)
-    --         end)
-    --       end,
-    --       webRoot = vim.fn.getcwd(),
-    --       protocol = 'inspector',
-    --       sourceMaps = true,
-    --       userDataDir = false,
-    --     },
-    --   }
-    -- end
 
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
