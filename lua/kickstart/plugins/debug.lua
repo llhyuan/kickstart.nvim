@@ -104,11 +104,31 @@ return {
         host = 'localhost',
         port = '${port}',
         executable = {
-          command = 'js-debug-adapter',
-          -- 💀 Make sure to update this path to point to your installation
+          command = vim.fn.stdpath 'data' .. '/mason/bin/js-debug-adapter',
           args = {
             '${port}',
           },
+        },
+        options = {
+          initialize_timeout_sec = 30,
+        },
+      }
+    end
+
+    -- Add pwa-chrome adapter for debugging web applications
+    if not dap.adapters['pwa-chrome'] then
+      dap.adapters['pwa-chrome'] = {
+        type = 'server',
+        host = 'localhost',
+        port = '${port}',
+        executable = {
+          command = vim.fn.stdpath 'data' .. '/mason/bin/js-debug-adapter',
+          args = {
+            '${port}',
+          },
+        },
+        options = {
+          initialize_timeout_sec = 30,
         },
       }
     end
@@ -123,33 +143,56 @@ return {
             cwd = '${workspaceFolder}',
           },
           -- Debug nodejs processes (make sure to add --inspect when you run the process)
+          -- {
+          --   type = 'pwa-node',
+          --   request = 'attach',
+          --   name = 'Attach to Node',
+          --   processId = require('dap.utils').pick_process,
+          --   cwd = '${workspaceFolder}',
+          --   restart = true,
+          --   sourceMaps = true,
+          --   skipFiles = { '<node_internals>/**' },
+          --   resolveSourceMapLocations = { '${workspaceFolder}/**', '!**/node_modules/**' },
+          -- },
           {
             type = 'pwa-node',
             request = 'attach',
-            name = 'Attach to Node',
+            name = 'Attach to Node (Port 9229)',
             address = 'localhost',
-            port = 8080,
-            processId = require('dap.utils').pick_process,
+            port = 9229,
             cwd = '${workspaceFolder}',
             restart = true,
             sourceMaps = true,
+            skipFiles = { '<node_internals>/**' },
+            resolveSourceMapLocations = { '${workspaceFolder}/**', '!**/node_modules/**' },
           },
+          -- {
+          --   type = 'pwa-node',
+          --   request = 'attach',
+          --   name = 'Attach to Node (Custom Port)',
+          --   address = 'localhost',
+          --   port = function()
+          --     return tonumber(vim.fn.input('Debug port: ', '9229'))
+          --   end,
+          --   cwd = '${workspaceFolder}',
+          --   restart = true,
+          --   sourceMaps = true,
+          --   skipFiles = { '<node_internals>/**' },
+          --   resolveSourceMapLocations = { '${workspaceFolder}/**', '!**/node_modules/**' },
+          -- },
           -- Debug web applications (client side)
           {
             type = 'pwa-chrome',
             request = 'launch',
             name = 'Launch & Debug Chrome',
             url = function()
-              local co = coroutine.running()
-              return coroutine.create(function()
+              return coroutine.create(function(dap_run_co)
                 vim.ui.input({
                   prompt = 'Enter URL: ',
                   default = 'http://localhost:3000',
                 }, function(url)
-                  if url == nil or url == '' then
-                    return
-                  else
-                    coroutine.resume(co, url)
+                  if url and url ~= '' then
+                    coroutine.resume(dap_run_co, url)
                   end
                 end)
               end)
@@ -188,26 +231,39 @@ return {
     -- Change breakpoint icons
     vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
     vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
-    local breakpoint_icons = vim.g.have_nerd_font
-        and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
-      or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
-    for type, icon in pairs(breakpoint_icons) do
-      local tp = 'Dap' .. type
-      local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
-      vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
-    end
+    -- local breakpoint_icons = vim.g.have_nerd_font
+    --     and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
+    --   or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
+    -- for type, icon in pairs(breakpoint_icons) do
+    --   local tp = 'Dap' .. type
+    --   local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
+    --   vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
+    -- end
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-    dap.listeners.before.event_exited['dapui_config'] = dapui.close
+    dap.listeners.before.event_terminated['dapui_config'] = function()
+      vim.notify('Debug session terminated', vim.log.levels.INFO)
+      dapui.close()
+    end
+    dap.listeners.before.event_exited['dapui_config'] = function()
+      vim.notify('Debug session exited', vim.log.levels.INFO)
+      dapui.close()
+    end
+
+    -- Add error handler
+    dap.listeners.after.event_output['dapui_config'] = function(_, body)
+      if body.category == 'stderr' then
+        vim.notify('DAP Error: ' .. (body.output or ''), vim.log.levels.ERROR)
+      end
+    end
 
     -- Install golang specific config
-    require('dap-go').setup {
-      delve = {
-        -- On Windows delve must be run attached or it crashes.
-        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
-        detached = vim.fn.has 'win32' == 0,
-      },
-    }
+    -- require('dap-go').setup {
+    --   delve = {
+    --     -- On Windows delve must be run attached or it crashes.
+    --     -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
+    --     detached = vim.fn.has 'win32' == 0,
+    --   },
+    -- }
   end,
 }
