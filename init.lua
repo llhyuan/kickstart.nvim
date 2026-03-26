@@ -348,7 +348,8 @@ require('lazy').setup({
   },
   {
     'vhyrro/luarocks.nvim',
-    priority = 1000, -- Very high priority is required, luarocks.nvim should run as the first plugin in your config.
+    enabled = false, -- disabled: takes ~63ms at startup and no installed plugins depend on it
+    priority = 1000,
     config = true,
   },
 
@@ -1336,7 +1337,7 @@ require('lazy').setup({
   },
   {
     'rebelot/kanagawa.nvim',
-    lazy = false,
+    lazy = true,
     opts = {
       theme = 'wave', -- Load "wave" theme
       background = { -- map the value of 'background' option to a theme
@@ -1351,7 +1352,7 @@ require('lazy').setup({
   {
     'rose-pine/neovim',
     name = 'rose-pine',
-    lazy = false,
+    lazy = true,
     -- config = function()
     --   vim.cmd 'colorscheme rose-pine'
     -- end,
@@ -1753,11 +1754,13 @@ require('lazy').setup({
     dependencies = { 'nvim-tree/nvim-web-devicons' },
   },
 
-  { 'christoomey/vim-tmux-navigator', lazy = false },
+  { 'christoomey/vim-tmux-navigator', event = 'VeryLazy' },
 
   {
     'akinsho/toggleterm.nvim',
     version = '*',
+    cmd = { 'ToggleTerm', 'TermExec' },
+    keys = { { '<leader>t', desc = 'Toggle terminal' } },
     opts = {
       shell = '/bin/zsh',
     },
@@ -1811,7 +1814,7 @@ require('lazy').setup({
   },
   {
     'HiPhish/rainbow-delimiters.nvim',
-    enable = false,
+    enabled = false,
   },
   {
     'folke/flash.nvim',
@@ -2131,6 +2134,18 @@ require('lazy').setup({
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
   -- you can continue same window with `<space>sr` which resumes last telescope search
 }, {
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        'gzip',
+        'netrwPlugin',
+        'tarPlugin',
+        'tohtml',
+        'tutor',
+        'zipPlugin',
+      },
+    },
+  },
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
