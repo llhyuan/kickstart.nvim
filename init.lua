@@ -1320,6 +1320,9 @@ require('lazy').setup({
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
 
       vim.g.gruvbox_material_foreground = 'original'
+      vim.g.gruvbox_material_background = 'hard'
+      vim.g.gruvbox_material_enable_bold = true
+      vim.g.gruvbox_material_enable_italic = true
 
       vim.cmd.colorscheme 'gruvbox-material'
 
