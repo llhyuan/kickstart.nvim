@@ -12,9 +12,6 @@ vim.g.have_nerd_font = true
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
--- expand tab
-vim.opt.expandtab = true
-
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -100,13 +97,6 @@ vim.opt.expandtab = true
 vim.opt.cindent = true
 vim.opt.smartindent = true
 
--- Preview substitutions live, as you type!
-vim.opt.inccommand = 'split'
-
--- Setup sonokai colortheme
-vim.g.sonokai_style = 'andromeda'
-vim.g.sonokai_better_performance = 1
-
 local icons = {
   dap = {
     Stopped = { ' ', 'DiagnosticWarn', 'DapStoppedLine' },
@@ -170,12 +160,6 @@ vim.api.nvim_create_autocmd({ 'FileType' }, {
   pattern = { '*' },
   command = 'setlocal formatoptions-=c formatoptions-=r formatoptions-=o',
 })
-
--- Configuring database connection
---    vim.g.dbs = {
---      dev = "Replace with your database connection URL.",
---      staging = "Replace with your database connection URL.",
---    }
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -580,7 +564,7 @@ require('lazy').setup({
   { 'Bilal2453/luvit-meta', lazy = true },
   {
     'stevearc/conform.nvim',
-    dependencies = { 'mason.nvim', 'MunifTanjim/prettier.nvim' },
+    dependencies = { 'mason.nvim' },
     event = { 'BufWritePre' },
     lazy = true,
     cmd = 'ConformInfo',
@@ -602,24 +586,6 @@ require('lazy').setup({
           quiet = false, -- not recommended to change
           lsp_format = 'fallback', -- not recommended to change
         },
-        -- format_on_save = function(bufnr)
-        --   -- Disable autoformat on certain filetypes
-        --   local ignore_filetypes = { 'c', 'cpp' }
-        --   if vim.tbl_contains(ignore_filetypes, vim.bo[bufnr].filetype) then
-        --     return
-        --   end
-        --   -- Disable with a global or buffer-local variable
-        --   if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
-        --     return
-        --   end
-        --   -- Disable autoformat for files in a certain path
-        --   local bufname = vim.api.nvim_buf_get_name(bufnr)
-        --   if bufname:match '/node_modules/' then
-        --     return
-        --   end
-        --   -- ...additional logic...
-        --   return { timeout_ms = 500, lsp_format = 'fallback' }
-        -- end,
         formatters_by_ft = {
           lua = { 'stylua' },
           fish = { 'fish_indent' },
@@ -674,8 +640,6 @@ require('lazy').setup({
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', opts = {} },
 
-      -- Allows extra capabilities provided by nvim-cmp
-      'hrsh7th/cmp-nvim-lsp',
       'saghen/blink.cmp',
     },
     config = function(_, opts)
@@ -764,7 +728,7 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -832,7 +796,7 @@ require('lazy').setup({
           -- code, if the language server you are using supports them
           --
           -- This may be unwanted, since they displace some of your code
-          if client and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
             map('<leader>uh', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
             end, 'Toggle Inlay [H]ints')
@@ -982,7 +946,7 @@ require('lazy').setup({
     dependencies = { 'rafamadriz/friendly-snippets', { 'L3MON4D3/LuaSnip', version = 'v2.*' } },
 
     -- use a release tag to download pre-built binaries
-    version = 'v0.*',
+    version = '1.*',
     -- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
     -- build = 'cargo build --release',
     -- If you use nix, you can build from source using latest nightly rust with:
@@ -1044,10 +1008,6 @@ require('lazy').setup({
       },
 
       appearance = {
-        -- Sets the fallback highlight groups to nvim-cmp's highlight groups
-        -- Useful for when your theme doesn't support blink.cmp
-        -- will be removed in a future release
-        use_nvim_cmp_as_default = true,
         -- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
         -- Adjusts spacing to ensure icons are aligned
         nerd_font_variant = 'mono',
@@ -1359,7 +1319,15 @@ require('lazy').setup({
     --   vim.cmd 'colorscheme rose-pine'
     -- end,
   },
-  { 'sainnhe/sonokai', lazy = true },
+  {
+    'sainnhe/sonokai',
+    lazy = true,
+    config = function()
+      -- Setup sonokai colortheme
+      vim.g.sonokai_style = 'andromeda'
+      vim.g.sonokai_better_performance = 1
+    end,
+  },
   {
     'sainnhe/everforest',
     lazy = true,
@@ -1572,110 +1540,6 @@ require('lazy').setup({
       },
     },
   },
-  -- {
-  --   'echasnovski/mini.ai',
-  --   keys = {
-  --     { 'a', mode = { 'x', 'o' } },
-  --     { 'i', mode = { 'x', 'o' } },
-  --   },
-  --   dependencies = { 'nvim-treesitter-textobjects', config = true },
-  --   opts = function()
-  --     local ai = require 'mini.ai'
-  --     return {
-  --       n_lines = 500,
-  --       custom_textobjects = {
-  --         o = ai.gen_spec.treesitter({
-  --           a = { '@block.outer', '@conditional.outer', '@loop.outer' },
-  --           i = { '@block.inner', '@conditional.inner', '@loop.inner' },
-  --         }, {}),
-  --         f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }, {}),
-  --         c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }, {}),
-  --       },
-  --     }
-  --   end,
-  --   config = function(_, opts)
-  --     require('mini.ai').setup(opts)
-  --     -- register all text objects with which-key
-  --     if require('lazyvim.util').has 'which-key.nvim' then
-  --       ---@type table<string, string | table>
-  --       local i = {
-  --         [' '] = 'Whitespace',
-  --         ['"'] = 'Balanced "',
-  --         ["'"] = "Balanced '",
-  --         ['`'] = 'Balanced `',
-  --         ['('] = 'Balanced (',
-  --         [')'] = 'Balanced )', -- including white-space
-  --
-  --         ['>'] = 'Balanced >', -- including white-space
-  --         ['<lt>'] = 'Balanced <',
-  --         [']'] = 'Balanced ]', -- including white-space
-  --         ['['] = 'Balanced [',
-  --         ['}'] = 'Balanced }', -- including white-space
-  --         ['{'] = 'Balanced {',
-  --         ['?'] = 'User Prompt',
-  --         ['_'] = 'Underscore',
-  --         ['a'] = 'Argument',
-  --         ['b'] = 'Balanced ), ], }',
-  --         ['c'] = 'Class',
-  --         ['f'] = 'Function',
-  --         ['o'] = 'Block, conditional, loop',
-  --         ['q'] = 'Quote `, ", \'',
-  --         ['t'] = 'Tag',
-  --       }
-  --       local a = vim.deepcopy(i)
-  --
-  --       local ic = vim.deepcopy(i)
-  --       local ac = vim.deepcopy(a)
-  --       for key, name in pairs { n = 'Next', l = 'Last' } do
-  --         i[key] = vim.tbl_extend('force', { name = 'Inside ' .. name .. ' textobject' }, ic)
-  --         a[key] = vim.tbl_extend('force', { name = 'Around ' .. name .. ' textobject' }, ac)
-  --       end
-  --       require('which-key').add {
-  --         mode = { 'o', 'x' },
-  --         i = i,
-  --         a = a,
-  --       }
-  --     end
-  --   end,
-  -- },
-  -- -- {
-  --   'echasnovski/mini.animate',
-  --   event = 'VeryLazy',
-  --   opts = function()
-  --     -- don't use animate when scrolling with the mouse
-  --     local mouse_scrolled = false
-  --     for _, scroll in ipairs { 'Up', 'Down' } do
-  --       local key = '<ScrollWheel' .. scroll .. '>'
-  --       vim.keymap.set({ '', 'i' }, key, function()
-  --         mouse_scrolled = true
-  --         return key
-  --       end, { expr = true })
-  --     end
-  --
-  --     local animate = require 'mini.animate'
-  --     return {
-  --       cursor = {
-  --         timing = animate.gen_timing.cubic { duration = 60, unit = 'total' },
-  --         path = animate.gen_path.line(),
-  --       },
-  --       resize = {
-  --         timing = animate.gen_timing.linear { duration = 80, unit = 'total' },
-  --       },
-  --       scroll = {
-  --         timing = animate.gen_timing.cubic { ease = 'in-out', duration = 60, unit = 'total' },
-  --         subscroll = animate.gen_subscroll.equal {
-  --           predicate = function(total_scroll)
-  --             if mouse_scrolled then
-  --               mouse_scrolled = false
-  --               return false
-  --             end
-  --             return total_scroll > 1
-  --           end,
-  --         },
-  --       },
-  --     }
-  --   end,
-  -- },
   {
     'echasnovski/mini.hipatterns',
     event = 'BufReadPre',
@@ -1696,45 +1560,6 @@ require('lazy').setup({
       }
     end,
   },
-  -- {
-  --   'folke/noice.nvim',
-  --   event = 'VeryLazy',
-  --   -- REMOVE THIS once this issue is fixed: https://github.com/yioneko/vtsls/issues/159
-  --   opts = {
-  --     notify = {
-  --       enabled = false,
-  --     },
-  --     routes = {
-  --       {
-  --         filter = {
-  --           event = 'notify',
-  --           find = 'Request textDocument',
-  --         },
-  --         opts = { skip = true },
-  --       },
-  --     },
-  --   },
-  -- },
-  -- {
-  --   'folke/snacks.nvim',
-  --   opts = {
-  --     notifier = {
-  --       enabled = false,
-  --       -- your notifier configuration comes here
-  --       -- or leave it empty to use the default settings
-  --       -- refer to the configuration section below
-  --     },
-  --     words = {
-  --       enabled = true, -- enable/disable the plugin
-  --       debounce = 200, -- time in ms to wait before updating
-  --       notify_jump = false, -- show a notification when jumping
-  --       notify_end = true, -- show a notification when reaching the end
-  --       foldopen = true, -- open folds after jumping
-  --       jumplist = true, -- set jump point before jumping
-  --       modes = { 'n', 'i', 'c' }, -- modes to show references
-  --     },
-  --   },
-  -- },
   {
     'stevearc/oil.nvim',
     lazy = false,
