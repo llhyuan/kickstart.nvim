@@ -1646,7 +1646,7 @@ require('lazy').setup({
   },
   {
     'HiPhish/rainbow-delimiters.nvim',
-    enabled = false,
+    enabled = true,
   },
   {
     'folke/flash.nvim',
