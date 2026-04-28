@@ -11,8 +11,8 @@ return {
   },
   cmd = 'Neotree',
   keys = {
-    { '<leader>e', ':Neotree toggle dir=./ right <CR>',          desc = 'NeoTree reveal', silent = true },
-    { '<leader>E', ':Neotree toggle current buffers right <CR>', desc = 'NeoTree reveal', silent = true },
+    { '<leader>e', ':Neotree toggle dir=./ right <CR>',          desc = 'NeoTree files', silent = true },
+    { '<leader>E', ':Neotree toggle current buffers right <CR>', desc = 'NeoTree buffers', silent = true },
   },
   opts = {
     sources = { 'filesystem', 'buffers', 'git_status', 'document_symbols' },

@@ -1,3 +1,5 @@
+vim.loader.enable()
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -312,23 +314,6 @@ require('lazy').setup({
   -- Use `opts = {}` to force a plugin to be loaded.
   --
 
-  -- Here is a more advanced example where we pass configuration
-  -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
-  --    require('gitsigns').setup({ ... })
-  --
-  -- See `:help gitsigns` to understand what the configuration keys do
-  { -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-    },
-  },
   {
     'vhyrro/luarocks.nvim',
     enabled = false, -- disabled: takes ~63ms at startup and no installed plugins depend on it
@@ -630,6 +615,7 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    event = { 'BufReadPre', 'BufNewFile' },
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
@@ -756,47 +742,6 @@ require('lazy').setup({
             })
           end
 
-          -- if lsp supports formatting, create auto command to format on file save
-          -- vtsls has formatting issues, so it's excluded
-
-          -- if
-          --     client
-          --     and client.name ~= 'vtsls'
-          --     and client.name ~= 'eslint'
-          --     and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_formatting)
-          -- then
-          --   vim.api.nvim_create_autocmd('BufWritePre', {
-          --     buffer = event.buf,
-          --     callback = function()
-          --       vim.lsp.buf.format { bufnr = event.buf, id = client.id }
-          --     end,
-          --   })
-          -- end
-          --
-          -- if client and client.name == 'eslint' and client.supports_method(client, vim.lsp.protocol.Methods.textDocument_formatting) then
-          --   local function organize_imports()
-          --     local ft = vim.bo.filetype:gsub('react$', '')
-          --     if not vim.tbl_contains({ 'javascript', 'typescript' }, ft) then
-          --       return
-          --     end
-          --     local ok = vim.lsp.buf_request_sync(0, 'workspace/executeCommand', {
-          --       command = (ft .. '.organizeImports'),
-          --       arguments = { vim.api.nvim_buf_get_name(0) },
-          --     }, 3000)
-          --     if not ok then
-          --       print 'Command timeout or failed to complete.'
-          --     end
-          --   end
-          --
-          --   vim.api.nvim_create_autocmd('BufWritePre', {
-          --     pattern = { '*.css', '*.html', '*.js', '*.jsx', '*.json', '*.ts', '*.tsx' },
-          --     callback = function()
-          --       organize_imports()
-          --       vim.cmd { cmd = 'EslintFixAll' }
-          --     end,
-          --   })
-          -- end
-
           -- The following code creates a keymap to toggle inlay hints in your
           -- code, if the language server you are using supports them
           --
@@ -808,16 +753,6 @@ require('lazy').setup({
           end
         end,
       })
-
-      -- Change diagnostic symbols in the sign column (gutter)
-      if vim.g.have_nerd_font then
-        local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
-        local diagnostic_signs = {}
-        for type, icon in pairs(signs) do
-          diagnostic_signs[vim.diagnostic.severity[type]] = icon
-        end
-        vim.diagnostic.config { signs = { text = diagnostic_signs } }
-      end
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
@@ -862,14 +797,6 @@ require('lazy').setup({
             },
           },
         },
-        -- eslint = {
-        --   on_attach = function(_, bufnr)
-        --     vim.api.nvim_create_autocmd('BufWritePre', {
-        --       buffer = bufnr,
-        --       command = 'EslintFixAll',
-        --     })
-        --   end,
-        -- },
       }
 
       for server, config in pairs(servers) do
@@ -915,40 +842,9 @@ require('lazy').setup({
       }
     end,
   },
-  -- {
-  --   -- Main LSP Configuration
-  --   'https://gitlab.com/schrieveslaach/sonarlint.nvim',
-  --   config = function(_, opts)
-  --     require('sonarlint').setup {
-  --       server = {
-  --         cmd = {
-  --           'sonarlint-language-server',
-  --           -- Ensure that sonarlint-language-server uses stdio channel
-  --           '-stdio',
-  --           '-analyzers',
-  --           -- paths to the analyzers you need, using those for python and java in this example
-  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarpython.jar',
-  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarcfamily.jar',
-  --           vim.fn.expand '$MASON/share/sonarlint-analyzers/sonarjs.jar',
-  --         },
-  --       },
-  --       filetypes = {
-  --         -- Tested and working
-  --         'dockerfile',
-  --         'python',
-  --         'cpp',
-  --         'javascript',
-  --         'javascriptreact',
-  --         'typescript',
-  --         'typescriptreact',
-  --       },
-  --     }
-  --   end,
-  -- },
   {
     'saghen/blink.cmp',
-    -- optional: provides snippets for the snippet source
-    dependencies = { 'rafamadriz/friendly-snippets', { 'L3MON4D3/LuaSnip', version = 'v2.*' } },
+    lazy = true,
 
     -- use a release tag to download pre-built binaries
     version = '1.*',
@@ -1047,153 +943,10 @@ require('lazy').setup({
     -- without having to redefine it
     opts_extend = { 'sources.default' },
   },
-  -- { -- Autocompletion
-  --   'hrsh7th/nvim-cmp',
-  --   version = '*',
-  --   event = 'InsertEnter',
-  --   dependencies = {
-  --     -- Snippet Engine & its associated nvim-cmp source
-  --     {
-  --       'L3MON4D3/LuaSnip',
-  --       build = (function()
-  --         -- Build Step is needed for regex support in snippets.
-  --         -- This step is not supported in many windows environments.
-  --         -- Remove the below condition to re-enable on windows.
-  --         if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-  --           return
-  --         end
-  --         return 'make install_jsregexp'
-  --       end)(),
-  --       dependencies = {
-  --         -- `friendly-snippets` contains a variety of premade snippets.
-  --         --    See the README about individual language/framework/plugin snippets:
-  --         --    https://github.com/rafamadriz/friendly-snippets
-  --         {
-  --           'rafamadriz/friendly-snippets',
-  --           config = function()
-  --             require('luasnip.loaders.from_vscode').lazy_load()
-  --           end,
-  --         },
-  --       },
-  --     },
-  --     'saadparwaiz1/cmp_luasnip',
-  --
-  --     -- Adds other completion capabilities.
-  --     --  nvim-cmp does not ship with all sources by default. They are split
-  --     --  into multiple repos for maintenance purposes.
-  --     'hrsh7th/cmp-nvim-lsp',
-  --     'hrsh7th/cmp-path',
-  --     {
-  --       'Saecki/crates.nvim',
-  --       event = { 'BufRead Cargo.toml' },
-  --       config = true,
-  --     },
-  --     { 'roobert/tailwindcss-colorizer-cmp.nvim', config = true },
-  --     'hrsh7th/cmp-emoji',
-  --   },
-  --   config = function()
-  --     -- See `:help cmp`
-  --     local cmp = require 'cmp'
-  --     local defaults = require 'cmp.config.default'()
-  --     local luasnip = require 'luasnip'
-  --     luasnip.config.setup {}
-  --
-  --     cmp.setup {
-  --       snippet = {
-  --         expand = function(args)
-  --           luasnip.lsp_expand(args.body)
-  --         end,
-  --       },
-  --       completion = { completeopt = 'menu,menuone,noinsert' },
-  --
-  --       -- For an understanding of why these mappings were
-  --       -- chosen, you will need to read `:help ins-completion`
-  --       --
-  --       -- No, but seriously. Please read `:help ins-completion`, it is really good!
-  --       mapping = cmp.mapping.preset.insert {
-  --         -- Select the [n]ext item
-  --         ['<C-n>'] = cmp.mapping.select_next_item(),
-  --         -- Select the [p]revious item
-  --         ['<C-p>'] = cmp.mapping.select_prev_item(),
-  --
-  --         -- Scroll the documentation window [b]ack / [f]orward
-  --         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-  --         ['<C-f>'] = cmp.mapping.scroll_docs(4),
-  --
-  --         -- Accept ([y]es) the completion.
-  --         --  This will auto-import if your LSP supports it.
-  --         --  This will expand snippets if the LSP sent a snippet.
-  --         -- ['<C-y>'] = cmp.mapping.confirm { select = true },
-  --
-  --         -- If you prefer more traditional completion keymaps,
-  --         -- you can uncomment the following lines
-  --         ['<CR>'] = cmp.mapping.confirm { select = true },
-  --         ['<Tab>'] = cmp.mapping.select_next_item(),
-  --         ['<S-Tab>'] = cmp.mapping.select_prev_item(),
-  --
-  --         -- Manually trigger a completion from nvim-cmp.
-  --         --  Generally you don't need this, because nvim-cmp will display
-  --         --  completions whenever it has completion options available.
-  --         ['<C-Space>'] = cmp.mapping.complete {},
-  --
-  --         -- Think of <c-l> as moving to the right of your snippet expansion.
-  --         --  So if you have a snippet that's like:
-  --         --  function $name($args)
-  --         --    $body
-  --         --  end
-  --         --
-  --         -- <c-l> will move you to the right of each of the expansion locations.
-  --         -- <c-h> is similar, except moving you backwards.
-  --         ['<C-l>'] = cmp.mapping(function()
-  --           if luasnip.expand_or_locally_jumpable() then
-  --             luasnip.expand_or_jump()
-  --           end
-  --         end, { 'i', 's' }),
-  --         ['<C-h>'] = cmp.mapping(function()
-  --           if luasnip.locally_jumpable(-1) then
-  --             luasnip.jump(-1)
-  --           end
-  --         end, { 'i', 's' }),
-  --
-  --         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-  --         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
-  --       },
-  --       sources = cmp.config.sources {
-  --         { name = 'nvim_lua' },
-  --         { name = 'nvim_lsp' },
-  --         { name = 'luasnip' },
-  --         { name = 'buffer', max_item_count = 4, keyword_length = 5 },
-  --         { name = 'path', max_item_count = 4 },
-  --       },
-  --       formatting = {
-  --         expandable_indicator = true,
-  --         format = function(entry, vim_item)
-  --           -- Kind icons
-  --           vim_item.kind = string.format('%s %s', icons.kinds[vim_item.kind], vim_item.kind) -- This concatenates the icons with the name of the item kind
-  --           -- Source
-  --           vim_item.menu = ({
-  --             buffer = '[Buffer]',
-  --             nvim_lsp = '[LSP]',
-  --             luasnip = '[LuaSnip]',
-  --             nvim_lua = '[Lua]',
-  --             latex_symbols = '[LaTeX]',
-  --           })[entry.source.name]
-  --           return vim_item
-  --         end,
-  --         fields = { cmp.ItemField.Abbr, cmp.ItemField.Kind, cmp.ItemField.Menu },
-  --       },
-  --       experimental = {
-  --         native_menu = false,
-  --         ghost_text = {
-  --           hl_group = 'CmpGhostText',
-  --         },
-  --       },
-  --       sorting = defaults.sorting,
-  --     }
-  --   end,
-  -- },
   {
     'L3MON4D3/LuaSnip',
+    version = 'v2.*',
+    event = 'InsertEnter',
     keys = function()
       return {}
     end,
@@ -1201,65 +954,12 @@ require('lazy').setup({
       history = true,
       delete_check_events = 'TextChanged',
     },
-  },
-  {
-    'rafamadriz/friendly-snippets',
-    config = function()
+    config = function(_, opts)
+      require('luasnip').setup(opts)
       require('luasnip.loaders.from_vscode').lazy_load()
     end,
   },
   { 'JoosepAlviste/nvim-ts-context-commentstring', lazy = true },
-  -- { -- Debug
-  --   'mfussenegger/nvim-dap',
-  --   lazy = true,
-  --   optional = true,
-  --   dependencies = {
-  --     {
-  --       'williamboman/mason.nvim',
-  --       opts = function(_, opts)
-  --         opts.ensure_installed = opts.ensure_installed or {}
-  --         table.insert(opts.ensure_installed, 'js-debug-adapter')
-  --       end,
-  --     },
-  --   },
-  --   opts = function()
-  --     local dap = require 'dap'
-  --     if not dap.adapters['pwa-node'] then
-  --       require('dap').adapters['pwa-node'] = {
-  --         type = 'server',
-  --         host = 'localhost',
-  --         port = '${port}',
-  --         executable = {
-  --           command = 'js-debug-adapter',
-  --           -- 💀 Make sure to update this path to point to your installation
-  --           args = {
-  --             '${port}',
-  --           },
-  --         },
-  --       }
-  --     end
-  --     for _, language in ipairs { 'typescript', 'javascript' } do
-  --       if not dap.configurations[language] then
-  --         dap.configurations[language] = {
-  --           {
-  --             type = 'pwa-node',
-  --             request = 'launch',
-  --             name = 'Launch file',
-  --             program = '${file}',
-  --             cwd = '${workspaceFolder}',
-  --           },
-  --           {
-  --             type = 'pwa-node',
-  --             request = 'attach',
-  --             name = 'Attach',
-  --             processId = require('dap.utils').pick_process,
-  --             cwd = '${workspaceFolder}',
-  --           },
-  --         }
-  --       end
-  --     end
-  --   end,
-  -- },
   { -- Color Scheme
     -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
@@ -1463,15 +1163,6 @@ require('lazy').setup({
     'echasnovski/mini.starter',
     event = 'VimEnter',
     opts = function()
-      -- local logo = table.concat({
-      --   '              ██╗   ██╗██╗███╗   ███╗          ',
-      --   '              ██║   ██║██║████╗ ████║          ',
-      --   '              ██║   ██║██║██╔████╔██║          ',
-      --   '              ╚██╗ ██╔╝██║██║╚██╔╝██║          ',
-      --   '               ╚████╔╝ ██║██║ ╚═╝ ██║          ',
-      --   '         neo.   ╚═══╝  ╚═╝╚═╝     ╚═╝          ',
-      --   '                                              ',
-      -- }, '\n')
       local logo = table.concat({
         '                                               ',
         '               hello world                      ',
@@ -1500,37 +1191,7 @@ require('lazy').setup({
       }
       return config
     end,
-
-    config = function(_, config)
-      -- close Lazy and re-open when starter is ready
-      if vim.o.filetype == 'lazy' then
-        vim.cmd.close()
-        vim.api.nvim_create_autocmd('User', {
-          pattern = 'MiniStarterOpened',
-          callback = function()
-            require('lazy').show()
-          end,
-        })
-      end
-
-      local starter = require 'mini.starter'
-      starter.setup(config)
-
-      vim.api.nvim_create_autocmd('User', {
-        pattern = 'VimEnter',
-        callback = function(ev)
-          local stats = require('lazy').stats()
-          local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
-          local pad_footer = string.rep(' ', 8)
-          starter.config.footer = pad_footer .. '⚡' .. stats.count .. ' plugins loaded in ' .. ms .. 'ms'
-          if vim.bo[ev.buf].filetype == 'ministarter' then
-            pcall(starter.refresh)
-          end
-        end,
-      })
-    end,
   },
-
   {
     'echasnovski/mini.surround',
     opts = {
@@ -1551,14 +1212,6 @@ require('lazy').setup({
     opts = function()
       local hi = require 'mini.hipatterns'
       return {
-        -- custom LazyVim option to enable the tailwind integration
-        tailwind = {
-          enabled = true,
-          ft = { 'typescriptreact', 'javascriptreact', 'css', 'javascript', 'typescript', 'html' },
-          -- full: the whole css class will be highlighted
-          -- compact: only the color will be highlighted
-          style = 'full',
-        },
         highlighters = {
           hex_color = hi.gen_highlighter.hex_color { priority = 2000 },
         },
@@ -1572,7 +1225,7 @@ require('lazy').setup({
       columns = {
         'icon',
         'size',
-        --"permissions",
+        'permissions',
         --"mtime",
       },
       -- keymaps = {
@@ -1587,16 +1240,6 @@ require('lazy').setup({
   },
 
   { 'christoomey/vim-tmux-navigator', event = 'VeryLazy' },
-
-  {
-    'akinsho/toggleterm.nvim',
-    version = '*',
-    cmd = { 'ToggleTerm', 'TermExec' },
-    keys = { { '<leader>t', desc = 'Toggle terminal' } },
-    opts = {
-      shell = '/bin/zsh',
-    },
-  },
   {
     'folke/trouble.nvim',
     cmd = { 'Trouble' },
@@ -1647,6 +1290,7 @@ require('lazy').setup({
   {
     'HiPhish/rainbow-delimiters.nvim',
     enabled = true,
+    event = 'BufReadPost',
   },
   {
     'folke/flash.nvim',
@@ -1669,43 +1313,6 @@ require('lazy').setup({
     event = 'VimEnter',
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = { signs = false },
-  },
-  { -- Collection of various small independent plugins/modules
-    'echasnovski/mini.nvim',
-    config = function()
-      -- Better Around/Inside textobjects
-      --
-      -- Examples:
-      --  - va)  - [V]isually select [A]round [)]paren
-      --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
-      --  - ci'  - [C]hange [I]nside [']quote
-      -- require('mini.ai').setup { n_lines = 500 }
-
-      -- Add/delete/replace surroundings (brackets, quotes, etc.)
-      --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
-      -- require('mini.surround').setup()
-
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
-
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
-    end,
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -1835,6 +1442,7 @@ require('lazy').setup({
   },
   {
     'akinsho/bufferline.nvim',
+    event = 'VeryLazy',
     opts = {
       options = {
         mode = 'tabs',
@@ -1850,7 +1458,6 @@ require('lazy').setup({
         show_buffer_icons = true,
         show_tab_indicators = true,
         separator_style = 'thick',
-        --diagnostics = "coc",
         diagnostics = 'nvim_lsp',
         offsets = {
           {
