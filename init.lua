@@ -776,6 +776,7 @@ require('lazy').setup({
         -- gopls = {},
         -- pyright = {},
         rust_analyzer = {},
+        vtsls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -818,11 +819,9 @@ require('lazy').setup({
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
+        'stylua',
         'eslint',
         'jsonlint',
-        'lua_ls',
-        'rust_analyzer',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -837,7 +836,7 @@ require('lazy').setup({
             vim.lsp.config(server_name, server)
           end,
         },
-        ensure_installed = { 'eslint', 'lua_ls', 'rust_analyzer' },
+        ensure_installed = { 'eslint', 'lua_ls', 'rust_analyzer', 'vtsls' },
         automatic_installation = true,
       }
     end,
@@ -1056,10 +1055,7 @@ require('lazy').setup({
     name = 'catppuccin',
     opts = {
       integrations = {
-
-        cmp = true,
         gitsigns = true,
-        illuminate = true,
         indent_blankline = { enabled = true },
         lsp_trouble = true,
         mason = true,
@@ -1073,10 +1069,6 @@ require('lazy').setup({
             information = { 'undercurl' },
           },
         },
-        navic = { enabled = true, custom_bg = 'lualine' },
-        neotest = true,
-        noice = true,
-        notify = true,
         neotree = true,
         semantic_tokens = true,
         telescope = true,
@@ -1112,27 +1104,8 @@ require('lazy').setup({
             },
             { 'filetype', icon_only = true, separator = '', padding = { left = 1, right = 0 } },
             { 'filename', path = 1, symbols = { modified = '  ', readonly = '', unnamed = '' } },
-            -- stylua: ignore
-            {
-              function() return require("nvim-navic").get_location() end,
-              cond = function() return package.loaded["nvim-navic"] and require("nvim-navic").is_available() end,
-            },
           },
           lualine_x = {
-            -- stylua: ignore
-            {
-              function() return require("noice").api.status.command.get() end,
-              cond = function() return package.loaded["noice"] and require("noice").api.status.command.has() end,
-            },
-            -- stylua: ignore
-            {
-              function()
-                return require("noice").api.status.mode.get()
-              end,
-              cond = function()
-                return package.loaded["noice"] and require("noice").api.status.mode.has()
-              end,
-            },
             -- stylua: ignore
             {
               function() return "  " .. require("dap").status() end,
@@ -1439,6 +1412,11 @@ require('lazy').setup({
         },
       }
     end,
+  },
+  {
+    'windwp/nvim-ts-autotag',
+    event = 'BufReadPost',
+    opts = {},
   },
   {
     'akinsho/bufferline.nvim',
