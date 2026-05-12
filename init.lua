@@ -967,31 +967,34 @@ require('lazy').setup({
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
     lazy = true,
+    -- init = function()
+    --   vim.cmd.colorscheme 'tokyonight'
+    -- end,
   },
   {
     'ellisonleao/gruvbox.nvim',
     lazy = true,
-    -- init = function()
-    --   vim.cmd.colorscheme 'gruvbox'
-    -- end,
   },
   {
     'sainnhe/gruvbox-material',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+    lazy = false,
+    priority = 1000,
     init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-
       vim.g.gruvbox_material_foreground = 'original'
       vim.g.gruvbox_material_background = 'hard'
       vim.g.gruvbox_material_enable_bold = true
       vim.g.gruvbox_material_enable_italic = true
 
-      vim.cmd.colorscheme 'gruvbox-material'
+      vim.api.nvim_create_autocmd('ColorScheme', {
+        pattern = 'gruvbox-material',
+        callback = function()
+          vim.api.nvim_set_hl(0, 'LspReferenceText',  { sp = '#928374', underline = true })
+          vim.api.nvim_set_hl(0, 'LspReferenceRead',  { sp = '#928374', underline = true })
+          vim.api.nvim_set_hl(0, 'LspReferenceWrite', { sp = '#928374', underline = true })
+        end,
+      })
 
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+      vim.cmd.colorscheme 'gruvbox-material'
     end,
   },
   {
