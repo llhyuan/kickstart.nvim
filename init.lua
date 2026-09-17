@@ -1621,10 +1621,12 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   end,
 })
 
--- Organize imports on demand. This used to run synchronously on every save,
--- and vtsls needs ~0.8s for it on a large project, which froze the editor on
--- each :w. The request below is async, so it never blocks.
-vim.keymap.set('n', '<leader>oi', function()
+-- Organize imports on demand via :OrganizeImports. This used to run
+-- synchronously on every save, and vtsls needs ~0.8s for it on a large
+-- project, which froze the editor on each :w. The request below is async, so
+-- it never blocks. (Not bound to a key: <leader>o is taken by another mapping,
+-- which swallowed the <leader>oi combo.)
+vim.api.nvim_create_user_command('OrganizeImports', function()
   local bufnr = vim.api.nvim_get_current_buf()
   local client = vim.lsp.get_clients({ name = 'vtsls', bufnr = bufnr })[1]
   if not client then
@@ -1640,7 +1642,7 @@ vim.keymap.set('n', '<leader>oi', function()
       vim.notify(err.message, vim.log.levels.ERROR)
     end
   end, bufnr)
-end, { desc = '[O]rganize [I]mports (vtsls)' })
+end, { desc = 'Organize imports (vtsls)' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
