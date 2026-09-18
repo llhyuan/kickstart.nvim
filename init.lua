@@ -385,6 +385,7 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>g', group = '[G]it' },
       },
     },
   },
@@ -1311,6 +1312,19 @@ require('lazy').setup({
         'vim',
         'vimdoc',
       }
+
+      -- nvim-treesitter (main branch) no longer starts highlighting by itself.
+      -- Start it for any buffer whose filetype has an installed parser;
+      -- pcall lets other filetypes silently fall back to regex syntax.
+      vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('treesitter-start', { clear = true }),
+        callback = function(ev)
+          local ok = pcall(vim.treesitter.start, ev.buf)
+          if ok then
+            vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
     end,
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     -- There are additional nvim-treesitter modules that you can use to interact
