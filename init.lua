@@ -1,5 +1,11 @@
 vim.loader.enable()
 
+-- If Neovim was launched from a directory that no longer exists, `vim.uv.cwd()`
+-- returns nil and pickers like Telescope's oldfiles crash. Fall back to home.
+if not vim.uv.cwd() then
+  vim.cmd.cd(vim.fn.expand '~')
+end
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
