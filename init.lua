@@ -35,8 +35,6 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
-vim.opt.conceallevel = 1
-
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -512,6 +510,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[S]earch [R]esume' })
+      vim.keymap.set('n', '<leader>fc', function()
+        builtin.colorscheme { enable_preview = true }
+      end, { desc = '[S]earch [C]olorschemes (live preview)' })
       vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
@@ -845,6 +846,44 @@ require('lazy').setup({
         ensure_installed = { 'eslint', 'lua_ls', 'rust_analyzer', 'vtsls' },
         automatic_installation = true,
       }
+
+      -- lspconfig's oxlint/oxfmt root_dir calls on_dir(nil) when no config is
+      -- found, which still starts the server in single-file mode with default
+      -- settings (oxfmt then reformats with double quotes, ignoring the
+      -- project's .prettierrc). Wrap root_dir so these servers only attach
+      -- where the project configures them, and only when the project's own
+      -- binary (node_modules/.bin, which lspconfig prefers over Mason's copy)
+      -- supports `--lsp`: old pins like oxlint 0.3.x lack it and
+      -- the client dies on start.
+      local function lsp_capable(root, cmd)
+        local local_cmd = vim.fs.joinpath(root, 'node_modules/.bin', cmd)
+        if vim.fn.executable(local_cmd) == 0 then
+          return true -- lspconfig falls back to the Mason binary
+        end
+        return vim.fn.system({ local_cmd, '--help' }):find('--lsp', 1, true) ~= nil
+      end
+      local lsp_capable_cache = {}
+      for _, name in ipairs { 'oxlint', 'oxfmt' } do
+        local default_root_dir = vim.lsp.config[name].root_dir
+        vim.lsp.config(name, {
+          capabilities = require('blink.cmp').get_lsp_capabilities(),
+          root_dir = function(bufnr, on_dir)
+            default_root_dir(bufnr, function(root)
+              if not root then
+                return
+              end
+              local key = name .. ':' .. root
+              if lsp_capable_cache[key] == nil then
+                lsp_capable_cache[key] = lsp_capable(root, name)
+              end
+              if lsp_capable_cache[key] then
+                on_dir(root)
+              end
+            end)
+          end,
+        })
+      end
+      vim.lsp.enable 'oxlint'
     end,
   },
   {
@@ -1053,6 +1092,7 @@ require('lazy').setup({
     end,
   },
   { 'EdenEast/nightfox.nvim', lazy = true },
+  { 'nyoom-engineering/oxocarbon.nvim', lazy = true },
   {
     'xero/miasma.nvim',
     lazy = true,
@@ -1632,6 +1672,17 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     if bufname:match '/node_modules/' then
       return
+    end
+
+    -- oxlint's server doesn't fix via formatting the way eslint's does, so
+    -- apply its auto-fixes explicitly first. Synchronous so the fixes land
+    -- before the buffer is written.
+    local oxlint = vim.lsp.get_clients({ name = 'oxlint', bufnr = bufnr })[1]
+    if oxlint then
+      oxlint:request_sync('workspace/executeCommand', {
+        command = 'oxc.fixAll',
+        arguments = { { uri = vim.uri_from_bufnr(bufnr) } },
+      }, 2000, bufnr)
     end
 
     -- No CLI formatter is configured for JS/TS, so conform falls back to LSP
