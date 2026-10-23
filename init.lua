@@ -572,6 +572,14 @@ require('lazy').setup({
       },
     },
     opts = function()
+      -- In oxfmt projects, let oxfmt (via LSP fallback) own these filetypes
+      -- too, instead of prettier with the hardcoded style args below.
+      local function prettier_unless_oxfmt(bufnr)
+        if #vim.lsp.get_clients { name = 'oxfmt', bufnr = bufnr } > 0 then
+          return {}
+        end
+        return { 'prettierd', 'prettier', stop_after_first = true }
+      end
       local opts = {
         default_format_opts = {
           timeout_ms = 3000,
@@ -585,10 +593,11 @@ require('lazy').setup({
           sh = { 'shfmt' },
           -- No CLI formatter for JS/TS on purpose: conform has no 'eslint'
           -- formatter, so these fall through to LSP formatting (vtsls + the
-          -- eslint language server) via lsp_format = 'fallback'.
-          html = { 'prettierd', 'prettier', stop_after_first = true },
-          css = { 'prettierd', 'prettier', stop_after_first = true },
-          json = { 'prettierd', 'prettier', stop_after_first = true },
+          -- eslint language server, or oxfmt where the project configures it)
+          -- via lsp_format = 'fallback'.
+          html = prettier_unless_oxfmt,
+          css = prettier_unless_oxfmt,
+          json = prettier_unless_oxfmt,
         },
         -- The options you set here will be merged with the builtin formatters.
         -- You can also define any custom formatters here.
@@ -829,6 +838,8 @@ require('lazy').setup({
         'stylua',
         'eslint',
         'jsonlint',
+        'oxlint',
+        'oxfmt',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -883,7 +894,9 @@ require('lazy').setup({
           end,
         })
       end
-      vim.lsp.enable 'oxlint'
+      -- Enabled explicitly rather than relying on mason-lspconfig's
+      -- automatic_enable, which only covers servers Mason has installed.
+      vim.lsp.enable { 'oxlint', 'oxfmt' }
     end,
   },
   {
@@ -1033,8 +1046,8 @@ require('lazy').setup({
       vim.api.nvim_create_autocmd('ColorScheme', {
         pattern = 'gruvbox-material',
         callback = function()
-          vim.api.nvim_set_hl(0, 'LspReferenceText',  { sp = '#928374', underline = true })
-          vim.api.nvim_set_hl(0, 'LspReferenceRead',  { sp = '#928374', underline = true })
+          vim.api.nvim_set_hl(0, 'LspReferenceText', { sp = '#928374', underline = true })
+          vim.api.nvim_set_hl(0, 'LspReferenceRead', { sp = '#928374', underline = true })
           vim.api.nvim_set_hl(0, 'LspReferenceWrite', { sp = '#928374', underline = true })
         end,
       })
@@ -1688,7 +1701,17 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     -- No CLI formatter is configured for JS/TS, so conform falls back to LSP
     -- formatting there: vtsls (tsserver formatting) + the eslint language
     -- server (applies all auto-fixes). Measured at ~40ms on a 340-line TSX file.
-    require('conform').format { bufnr = bufnr, lsp_format = 'fallback', timeout_ms = 2000 }
+    -- Where oxfmt is attached it owns formatting, so skip vtsls: both would
+    -- otherwise run in sequence and fight over the style.
+    local has_oxfmt = #vim.lsp.get_clients { name = 'oxfmt', bufnr = bufnr } > 0
+    require('conform').format {
+      bufnr = bufnr,
+      lsp_format = 'fallback',
+      timeout_ms = 2000,
+      filter = function(client)
+        return not (has_oxfmt and client.name == 'vtsls')
+      end,
+    }
   end,
 })
 
